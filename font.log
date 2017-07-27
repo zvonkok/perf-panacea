@@ -1,0 +1,98 @@
+resolvers       > trees > analyzing 'home:texmf'
+
+open source     > level 1, order 1, name '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-yes.mkiv'
+system          > 
+system          > ConTeXt  ver: 2017.05.15 21:48 MKIV beta  fmt: 2017.7.11  int: english/english
+system          > 
+system          > 'cont-new.mkiv' loaded
+open source     > level 2, order 2, name '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-new.mkiv'
+close source    > level 2, order 2, name '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-new.mkiv'
+system          > files > jobname 'font', input './font', result 'font'
+fonts           > latin modern fonts are not preloaded
+languages       > language 'en' is active
+open source     > level 2, order 3, name '/home/zkosic/git/perf/font.tex'
+selectfont      > The requested font 'Times New Roman' has no files for the 'tf' alternative, Latin Modern is used instead.
+selectfont      > The requested font 'Arial' has no files for the 'tf' alternative, Latin Modern is used instead.
+selectfont      > The requested font 'Courier' has no files for the 'tf' alternative, Latin Modern is used instead.
+fonts           > defining > font 'DejaVuSansMono', feature 'locl', script 'latn', no language 'dflt'
+fonts           > defining > font 'DejaVuSansMono', feature 'locl', script 'cyrl', no language 'dflt'
+math            > fallbacks > missing U+02057 prime in font 'Linux Libertine O'
+backend         > xmp > using file '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/lpdf-pdx.xml'
+pages           > flushing realpage 1, userpage 1, subpage 1
+close source    > level 2, order 3, name '/home/zkosic/git/perf/font.tex'
+close source    > level 1, order 3, name '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-yes.mkiv'
+
+system          > structure > start used structure
+
+used structure  > text: font
+
+system          > structure > stop used structure
+
+
+system          > files > start used files
+
+used file       >    1: filename=cont-yes.mkiv filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-yes.mkiv usedmethod=database
+used file       >    2: filename=publ-imp-default.lua filetype=lua foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/publ-imp-default.lua usedmethod=database
+used file       >    3: filename=cont-new.mkiv filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-new.mkiv usedmethod=database
+used file       >    4: filename=lang-us.lua filetype=lua foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/patterns/mkiv/lang-us.lua usedmethod=database
+used file       >    5: filename=/home/zkosic/git/perf/font foundname=/home/zkosic/git/perf/font.tex usedmethod=qualified
+used file       >    6: filename=xits-math.lfg filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/fonts/mkiv/xits-math.lfg usedmethod=database
+used file       >    7: filename=lm.lfg filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/fonts/mkiv/lm.lfg usedmethod=database
+used file       >    8: filename=texgyre.lfg filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/fonts/mkiv/texgyre.lfg usedmethod=database
+used file       >    9: filename=DejaVuSerif.ttf filetype=ttf format=ttf foundname=/home/zkosic/git/context/tex/texmf/fonts/truetype/public/dejavu/DejaVuSerif.ttf usedmethod=database
+used file       >   10: filename=xits-math.otf filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/xits/xits-math.otf usedmethod=database
+used file       >   11: filename=DejaVuSans.ttf filetype=ttf format=ttf foundname=/home/zkosic/git/context/tex/texmf/fonts/truetype/public/dejavu/DejaVuSans.ttf usedmethod=database
+used file       >   12: filename=DejaVuSansMono.ttf filetype=ttf format=ttf foundname=/home/zkosic/git/context/tex/texmf/fonts/truetype/public/dejavu/DejaVuSansMono.ttf usedmethod=database
+used file       >   13: filename=lmroman10-regular filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/lm/lmroman10-regular.otf usedmethod=database
+used file       >   14: filename=texgyretermes-math.otf filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/tex-gyre-math/texgyretermes-math.otf usedmethod=database
+used file       >   15: filename=lmsans10-regular filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/lm/lmsans10-regular.otf usedmethod=database
+used file       >   16: filename=lmmono10-regular filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/lm/lmmono10-regular.otf usedmethod=database
+used file       >   17: filename=LinLibertine_R.otf filetype=otf format=otf foundname=/home/zkosic/.fonts/LinLibertine_R.otf usedmethod=filesystem
+used file       >   18: filename=texgyrepagella-math.otf filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/tex-gyre-math/texgyrepagella-math.otf usedmethod=database
+used file       >   19: filename=LinBiolinum_R.otf filetype=otf format=otf foundname=/home/zkosic/.fonts/LinBiolinum_R.otf usedmethod=filesystem
+used file       >   20: filename=lmmono10-regular.otf filetype=otf format=otf foundname=/home/zkosic/git/context/tex/texmf/fonts/opentype/public/lm/lmmono10-regular.otf usedmethod=database
+used file       >   21: filename=lpdf-pdx.xml filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/lpdf-pdx.xml usedmethod=database
+
+system          > files > stop used files
+
+
+system          > options > start commandline options
+
+used option     > currentrun="1"
+used option     > fulljobname="./font"
+used option     > input="./font"
+used option     > kindofrun="1"
+used option     > maxnofruns="9"
+used option     > no-parse-first-line="true"
+
+system          > options > stop commandline options
+
+system          > options > start commandline files
+
+used file       >    1: ./font
+
+system          > options > stop commandline files
+
+
+mkiv lua stats  > used config file: selfautoparent:/texmf/web2c/texmfcnf.lua
+mkiv lua stats  > used cache path: /home/zkosic/git/context/tex/texmf-cache/luatex-cache/context/5fe67e0bfe781ce0dde776fb1556f32e
+mkiv lua stats  > resource resolver: loadtime 0.008 seconds, 1 scans with scantime 0.000 seconds, 0 shared scans, 21 found files, scanned paths: /home/zkosic/texmf
+mkiv lua stats  > stored bytecode data: 404 modules (0.199 sec), 91 tables (0.012 sec), 495 chunks (0.211 sec)
+mkiv lua stats  > traced context: maxstack: 1232, freed: 1, unreachable: 1231
+mkiv lua stats  > cleaned up reserved nodes: 49 nodes, 9 lists of 447
+mkiv lua stats  > node memory usage: 2 glue, 2 penalty, 9 attribute, 49 glue_spec, 3 attribute_list, 2 temp, 2 user_defined
+mkiv lua stats  > node list callback tasks: 7 unique task lists, 7 instances (re)created, 41 calls
+mkiv lua stats  > used backend: pdf (backend for directly generating pdf output)
+mkiv lua stats  > jobdata time: 0.001 seconds saving, 0.000 seconds loading
+mkiv lua stats  > callbacks: 179 direct, 267 indirect, 446 total
+mkiv lua stats  > randomizer: resumed with value 0.94158752818666
+mkiv lua stats  > loaded patterns: en::2, load time: 0.000
+mkiv lua stats  > result saved in file: font.pdf, compresslevel 3, objectcompresslevel 3
+mkiv lua stats  > loaded fonts: 11 files: linbiolinum_r.otf, linlibertine_r.otf, lmmono10-regular.otf, lmroman10-regular.otf, lmsans10-regular.otf, texgyrepagella-math.otf, texgyretermes-math.otf, xits-math.otf, dejavusans.ttf, dejavusansmono.ttf, dejavuserif.ttf
+mkiv lua stats  > font engine: otf 3.029, afm 1.512, tfm 1.000, 18 instances, 1 shared in backend, 1 common vectors, 0 common hashes, load time 0.481 seconds 
+mkiv lua stats  > used platform: linux-64, type: unix, binary subtree: texmf-linux-64
+mkiv lua stats  > luatex banner: this is luatex, version 1.05.0 (tex live 2017)
+mkiv lua stats  > control sequences: 49129 of 65536 + 100000
+mkiv lua stats  > lua properties: engine: lua, used memory: 115 MB (ctx: 114 MB), hash type: lua, hash chars: min(64,40), symbol mask: utf (τεχ)
+mkiv lua stats  > runtime: 0.927 seconds, 1 processed pages, 1 shipped pages, 1.079 pages/second
+

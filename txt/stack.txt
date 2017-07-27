@@ -1,0 +1,216 @@
+/* Legal values for a_type (entry type).  */
+#define AT_NULL         0               /* End of vector */
+#define AT_IGNORE       1               /* Entry should be ignored */
+#define AT_EXECFD       2               /* File descriptor of program */
+#define AT_PHDR         3               /* Program headers for program */
+#define AT_PHENT        4               /* Size of program header entry */
+#define AT_PHNUM        5               /* Number of program headers */
+#define AT_PAGESZ       6               /* System page size */
+#define AT_BASE         7               /* Base address of interpreter */
+#define AT_FLAGS        8               /* Flags */
+#define AT_ENTRY        9               /* Entry point of program */
+#define AT_NOTELF       10              /* Program is not ELF */
+#define AT_UID          11              /* Real uid */
+#define AT_EUID         12              /* Effective uid */
+#define AT_GID          13              /* Real gid */
+#define AT_EGID         14              /* Effective gid */
+#define AT_CLKTCK       17              /* Frequency of times() */
+/* Pointer to the global system page used for system calls and other nice things.  */
+#define AT_SYSINFO      32
+#define AT_SYSINFO_EHDR 33
+
+
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e5345b8 __gmpn_mul_basecase
+eu-stack: dwfl_thread_getframes tid 13721 at 0x3ff8e5345b8 in /usr/lib64/libgmp.so.10.3.1: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc826cc bs
+#1  0x000002aa0cc82732 bs
+#2  0x000002aa0cc82732 bs
+#3  0x000002aa0cc82732 bs
+#4  0x000002aa0cc8270c bs
+#5  0x000002aa0cc82732 bs
+#6  0x000002aa0cc8270c bs
+#7  0x000002aa0cc844b6 picomp
+#8  0x000002aa0cc81b04 main
+#9  0x000003ff8e22289a __libc_start_main
+#10 0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc82442 fac_remove_gcd
+#1  0x000002aa0cc83a2c bs
+#2  0x000002aa0cc8270c bs
+#3  0x000002aa0cc82732 bs
+#4  0x000002aa0cc8270c bs
+#5  0x000002aa0cc82732 bs
+#6  0x000002aa0cc8270c bs
+#7  0x000002aa0cc844b6 picomp
+#8  0x000002aa0cc81b04 main
+#9  0x000003ff8e22289a __libc_start_main
+#10 0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc83844 bs
+#1  0x000002aa0cc82732 bs
+#2  0x000002aa0cc82732 bs
+#3  0x000002aa0cc82732 bs
+#4  0x000002aa0cc82732 bs
+#5  0x000002aa0cc82732 bs
+#6  0x000002aa0cc8270c bs
+#7  0x000002aa0cc82732 bs
+#8  0x000002aa0cc844b6 picomp
+#9  0x000002aa0cc81b04 main
+#10 0x000003ff8e22289a __libc_start_main
+#11 0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc8415c build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e534646 __gmpn_mul_basecase
+eu-stack: dwfl_thread_getframes tid 13721 at 0x3ff8e534646 in /usr/lib64/libgmp.so.10.3.1: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e5345fc __gmpn_mul_basecase
+eu-stack: dwfl_thread_getframes tid 13721 at 0x3ff8e5345fc in /usr/lib64/libgmp.so.10.3.1: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc836ac bs
+#1  0x000002aa0cc82732 bs
+#2  0x000002aa0cc8270c bs
+#3  0x000002aa0cc8270c bs
+#4  0x000002aa0cc82732 bs
+#5  0x000002aa0cc82732 bs
+#6  0x000002aa0cc8270c bs
+#7  0x000002aa0cc844b6 picomp
+#8  0x000002aa0cc81b04 main
+#9  0x000003ff8e22289a __libc_start_main
+#10 0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc84116 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc840e2 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e28e78a _int_free
+#1  0x000003ff8e292aba __libc_free
+#2  0x000002aa0cc846aa picomp
+#3  0x000002aa0cc81b04 main
+#4  0x000003ff8e22289a __libc_start_main
+#5  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc840e2 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc840e2 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc840d2 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e52c49e __gmpn_sub_n
+eu-stack: dwfl_thread_getframes tid 13721 at 0x3ff8e52c49e in /usr/lib64/libgmp.so.10.3.1: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e304066 brk
+#1  0x000003ff8e30415e __sbrk
+#2  0x000003ff8e295ad2 __default_morecore
+#3  0x000003ff8e28bede systrim.isra.3
+#4  0x000003ff8e28ee16 _int_free
+#5  0x000003ff8e292aba __libc_free
+#6  0x000002aa0cc8477e picomp
+#7  0x000002aa0cc81b04 main
+#8  0x000003ff8e22289a __libc_start_main
+#9  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc84152 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc841b0 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc84116 build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000003ff8e52c70a __gmpn_mul_1
+eu-stack: dwfl_thread_getframes tid 13721 at 0x3ff8e52c70a in /usr/lib64/libgmp.so.10.3.1: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc841ce build_sieve
+#1  0x000002aa0cc842f0 picomp
+#2  0x000002aa0cc81b04 main
+#3  0x000003ff8e22289a __libc_start_main
+#4  0x000002aa0cc81c9c _start
+eu-stack: dwfl_thread_getframes tid 13721 at 0x2aa0cc81c9b in /mnt/6ddc/benchmarks/gmpbench-0.2/pi: no matching address range
+PID 13721 - process
+TID 13721:
+#0  0x000002aa0cc83492 bs
+#1  0x000002aa0cc82732 bs
+#2  0x000002aa0cc82732 bs
+#3  0x000002aa0cc82732 bs
+#4  0x000002aa0cc82732 bs
+#5  0x000002aa0cc82732 bs
+#6  0x000002aa0cc8270c bs
+#7  0x000002aa0cc8270c bs
+#8  0x000002aa0cc844b6 picomp
+#9  0x000002aa0cc81b04 main
+#10 0x000003ff8e22289a __libc_start_main
+#11 0x000002aa0cc81c9c _start
+

@@ -1,0 +1,133 @@
+%scriptina
+\starttypescript [serif] [scriptina]
+	\definefontsynonym [Serif] [Scriptina]
+\stoptypescript
+
+\starttypescript [serif] [scriptina]
+	\definefontsynonym [Scriptina] [name:scriptina]
+\stoptypescript
+
+\starttypescript [scriptina]
+  \definetypeface [scriptina] [rm] [serif] [scriptina] [default]
+\stoptypescript
+
+
+
+\starttypescriptcollection[libertine]
+
+    \starttypescript [serif] [libertine]
+        \definefontsynonym [Libertine-Regular]     [name:linlibertineo]
+        \definefontsynonym [Libertine-Italic]      [name:linlibertineoi] % z
+        \definefontsynonym [Libertine-Slanted]     [name:linlibertineoi]
+        \definefontsynonym [Libertine-Bold]        [name:linlibertineob]
+        \definefontsynonym [Libertine-BoldItalic]  [name:linlibertineobi]
+        \definefontsynonym [Libertine-BoldSlanted] [name:linlibertineobi]
+    \stoptypescript
+
+    \starttypescript [serif] [libertine] [name]
+        \setups[font:fallback:serif]
+        \definefontsynonym [Serif]            [Libertine-Regular]     [features=default]
+        \definefontsynonym [SerifItalic]      [Libertine-Italic]      [features=default]
+        \definefontsynonym [SerifSlanted]     [Libertine-Slanted]     [features=default]
+        \definefontsynonym [SerifBold]        [Libertine-Bold]        [features=default]
+        \definefontsynonym [SerifBoldItalic]  [Libertine-BoldItalic]  [features=default]
+        \definefontsynonym [SerifBoldSlanted] [Libertine-BoldSlanted] [features=default]
+        \definefontsynonym [SerifCaps]        [Libertine-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [sans] [biolinum]
+        \setups[font:fallback:sans]
+        \definefontsynonym [Biolinum-Regular]     [name:linbiolinumo]
+        \definefontsynonym [Biolinum-Italic]      [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-Slanted]     [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-Bold]        [name:linbiolinumob]
+        \definefontsynonym [Biolinum-BoldItalic]  [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-BoldSlanted] [name:linbiolinumob]
+    \stoptypescript
+
+    \starttypescript [sans] [biolinum] [name]
+        \setups[font:fallback:sans]
+        \definefontsynonym [Sans]           [Biolinum-Regular]     [features=default]
+        \definefontsynonym [SansBold]       [Biolinum-Bold]        [features=default]
+        \definefontsynonym [SansItalic]     [Biolinum-Italic]      [features=default]
+        \definefontsynonym [SansSlanted]    [Biolinum-Slanted]     [features=default]
+        \definefontsynonym [SansBoldItalic] [Biolinum-BoldSlanted] [features=default]
+        \definefontsynonym [SansCaps]       [Biolinum-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [mono] [consolas]
+        \setups[font:fallback:mono]
+        \definefontsynonym [Consolas-Regular]     [name:consolas]
+        \definefontsynonym [Consolas-Italic]      [name:consolasitalic]
+        \definefontsynonym [Consolas-Slanted]     [name:consolasitalic]
+        \definefontsynonym [Consolas-Bold]        [name:consolasbold]
+        \definefontsynonym [Consolas-BoldItalic]  [name:consolasbolditalic]
+        \definefontsynonym [Consolas-BoldSlanted] [name:consolasbolditalic]
+    \stoptypescript
+
+    \starttypescript [mono] [consolas] [name]
+        \setups[font:fallback:mono]
+        \definefontsynonym [Mono]           [Consolas-Regular]     [features=default]
+        \definefontsynonym [MonoBold]       [Consolas-Bold]        [features=default]
+        \definefontsynonym [MonoItalic]     [Consolas-Italic]      [features=default]
+        \definefontsynonym [MonoSlanted]    [Consolas-Slanted]     [features=default]
+        \definefontsynonym [MonoBoldItalic] [Consolas-BoldSlanted] [features=default]
+        \definefontsynonym [MonoCaps]       [Consolas-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [libertine]
+        \definetypeface [libertine] [rm] [serif] [libertine] [default]
+        \definetypeface [libertine] [ss] [sans]  [biolinum]  [default]
+        \definetypeface [libertine] [tt] [mono]  [consolas]   [default][rscale=0.85]
+        %definetypeface [libertine] [mm] [math]  [times]     [efault]
+        \quittypescriptscanning
+    \stoptypescript
+
+\stoptypescriptcollection
+
+\usetypescript[libertine]
+\setupbodyfont[libertine, 10pt]
+
+
+\setuplayout[
+  leftmargin=0mm,
+  rightmargin=0mm,
+  header=0mm,
+  footer=0mm,
+  width=150mm,
+  backspace=30mm,
+    ]
+
+
+
+\definecharacterkerning [extrakerning] [factor=.115]
+
+\definecharacterkerning [okerning]  [factor=-.2]
+\definecharacterkerning [mkerning]  [factor=-.45]
+\definecharacterkerning [pkerning]  [factor=0]
+
+
+\definefontfeature
+    [salt]
+    [mode=node,language=dflt,script=latn,onum=yes, salt=yes]
+
+\def\st{\setfontfeature{salt}}
+
+\starttext
+
+\startalignment[center]
+  \blank[20*big,force]
+    { \tfd\darkred PERF {\st &}  eBPF -- TUTORIAL}
+  \blank[2*medium]
+  {\setcharacterkerning[extrakerning] \word\tfb\sc Panacea}
+  {\tfb\em of}
+  {\setcharacterkerning[extrakerning] \word\tfb\sc Performance Profiling}
+  \blank[2*medium]
+        {\switchtotypeface[scriptina] \tfd
+          {\setcharacterkerning[mkerning]Zv}on{\setcharacterkerning[okerning]ko} Ko{\setcharacterkerning[okerning]si}c}
+  \blank[2*medium]
+    {\tfa July 11, 2017}
+   \blank[3*medium]
+\stopalignment
+
+\stoptext

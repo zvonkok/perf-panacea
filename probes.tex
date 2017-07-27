@@ -1,0 +1,391 @@
+\chapter{Probes}
+\section{Userspace probing}
+
+As mentioned in the /Debug Symbols/ section, {\em perf} can create
+/Tracepoints/ at functions and source code lines. So as a first
+step lets have a look which functions reside in the used binary.
+
+\margintext{Show all functions in {\tt lat_mem_rd} for probing, debug symbols needed.}
+\starttyping
+# perf probe -x lat_mem_rd -F | head -n 20
+Delta
+Now
+alarm@plt
+bandwidth
+base_initialize
+benchmark_loads
+benchmp
+benchmp_child
+benchmp_child_sigchld
+benchmp_child_sigterm
+benchmp_childid
+benchmp_getstate
+benchmp_interval
+benchmp_parent
+benchmp_sigalrm
+benchmp_sigchld
+benchmp_sigterm
+bread
+bytes
+close@plt
+\stoptyping
+
+From earlier examinations one knows that the /benchmark_loads/ has the most
+samples. Now show or list the source code of the specified function.
+
+\margintext{List source code of {\ss benchmark_loads} function, debug symbols needed.}
+\starttyping
+# perf probe -x lat_mem_rd -L benchmark_loads | head -n 20
+<benchmark_loads@/mnt/6ddc/benchmarks/lmbench-3.0-a9/src/lat_mem_rd.c:0>
+      0  benchmark_loads(iter_t iterations, void *cookie)
+      1  {
+         	struct mem_state* state = (struct mem_state*)cookie;
+      3  	register char **p = (char**)state->p[0];
+         	register size_t i;
+      5  	register size_t count = state->len / (state->line * 100) + 1;
+
+      7  	while (iterations-- > 0) {
+      8  		for (i = 0; i < count; ++i) {
+      9  			HUNDRED;
+         		}
+         	}
+
+     13  	use_pointer((void *)p);
+     14  	state->p[0] = (char*)p;
+     15  }
+
+
+         void
+\stoptyping
+
+That's really nice, we see the source code with associated line
+numbers and can have a glimpse on the function and its intent. One can
+further dissect the overview with another feature, namely inspecting
+the variables available at a specific source code line. Lets have a
+look at line 9, where the macro /HUNDRED/ is located.
+
+\starttyping
+# list all variables at line=9 in benchmark_loads function
+# perf probe -x lat_mem_rd -V benchmark_loads:9
+Available variables at benchmark_loads:9
+	@<benchmark_loads+86>
+		 (unknown_type	cookie
+		char**	p
+		iter_t	iterations
+		size_t	count
+		size_t	i
+		struct mem_state*	state
+\stoptyping
+
+There are some control variables /i/,/count/,/iterations/ but the interesting
+variable here is /p/. The /lat_mem_rd/ benchmarks uses pointer-chasing to step
+with a specific stride through the caches and memory and /p/ is the beginning
+of a circular linked list. Lets create a /Tracepoint/ and gather the
+address of /p/.
+
+\starttyping
+# create probe for variable p
+# perf probe -x lat_mem_rd 'bl9=benchmark_loads:9 addr=p' 2>&1
+Added new event:
+  probe_lat:bl9        (on benchmark_loads:9 in lat_mem_rd with addr=p)
+
+You can now use it in all perf tools, such as:
+
+	perf record -e probe_lat:bl9 -aR sleep 1
+
+\stoptyping
+
+This new probe can now be used in every perf tool as any other
+event. One can count, record, ... this new event. Just for sanity
+checking list the new event.
+
+\starttyping
+# check for event
+# perf list bl9
+probe_lat:bl9                                      [Tracepoint event]
+\stoptyping
+
+Lets try to count how many times we reach this /Tracepoint/.
+
+\starttyping
+# use the event either in stat or record
+# perf stat -e probe_lat:bl9 lat_mem_rd 1 2048 2>&1
+
+"stride=2048
+0.00195 7.208
+0.00293 7.179
+
+    ...
+
+ Performance counter stats for 'lat_mem_rd 1 2048':
+
+        28,802,191      probe_lat:bl9
+
+      23.484057250 seconds time elapsed
+
+\stoptyping
+
+To display the value of /p/, which was gathered in the /Tracepoint/,
+the samples have to be recorded.
+
+\starttyping
+# record the events so we can examine the value of p variable
+# perf record -e probe_lat:bl9 lat_mem_rd 1 2048 2>&1
+"stride=2048
+0.00195 8.615
+0.00293 8.550
+0.00391 8.365
+0.00586 8.355
+     ...
+
+[ perf record: Woken up 2768 times to write data ]
+Warning:
+Processed 35165656 events and lost 109 chunks!
+
+Check IO/CPU overload!
+
+[ perf record: Captured and wrote 1912.943 MB perf.data (23951777 samples) ]
+\stoptyping
+
+Now just call /perf script/ to have an console output of the gathered
+samples. What is evident here is that /lat_mem_rd/ starts always from
+the same address the pointer-chasing, the variability lies in the
+iteration count and stride and buffer size.
+
+
+\starttyping[oddmaring=-1.5cm, evenmargin=-1.5cm]
+# show the value of p
+# perf script
+      lat_mem_rd  5846 [000]  5210.256441: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256447: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256449: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256450: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256451: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256452: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256452: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256453: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256454: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256455: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256457: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256457: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256458: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256459: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256460: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256461: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256462: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256463: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256463: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+      lat_mem_rd  5846 [000]  5210.256464: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
+\stoptyping
+
+
+** Backlog
+\starttyping
+ perf probe -x ./lat_mem_rd -L benchmark_loads
+ perf probe -x ./lat_mem_rd 'bm_load=benchmark_loads'
+
+ perf probe -x ./lat_mem_rd -V benchmark_loads:9
+ perf probe -x ./lat_mem_rd  'bl5=benchmark_loads:9 addr=p'
+
+ perf stat -I 1000 -e probe_lat:bm_load ./lat_mem_rd 1 2048
+ perf record -e probe_lat:mem_load ./lat_mem_rd 1 1024
+
+ perf script
+\stoptyping
+
+
+\subsection{Heatmap}
+
+In this section {\em probes}\sidenote{The probes used here are static
+  tracepoints that are already available no need to create new one}
+will be used as timestamp anchor points for latency measurement of the
+{\em fio} benchmark. For latency measurements one needs two timestamps
+where the difference between them is the latency.
+
+Since {\em fio} exercises the disk, the two {\em probes} used here will
+be {\tt block:block_rq_issue} and {\tt block:block_rq_complete}.
+But first create a {\em fio} testcase.
+
+\margintext{The {\em fio} benchmark will be doing a random read on a 4 Gb file.}
+\starttyping
+cat > random-read-test.fio << EOF
+[random-read]
+rw=randread
+size=4g
+directory=/tmp
+EOF
+\stoptyping
+
+Next, use {\em perf} and sample the benchmark with the two {\em probes}
+selected above.
+\starttyping
+# perf record -e block:block_rq_issue -e block:block_rq_complete -a -- fio random-read-test.fio
+\stoptyping
+
+Lets have a look at the captured data. Look for the timestamps and the events
+just captured. This will be used in the next step to calculate the latencies
+and feed them to the charting software.
+
+\margintext{The {\tt --ns} switch is used to display the time using 9 decimal places. The 4th column
+shows the timestamps and the 5th the corresponding event.}
+\starttyping
+# perf script --ns
+            perf 12505 [003]  3108.108454:    block:block_rq_issue: 94,0 RM 4096 () 58789608 + 8 [perf]
+         swapper     0 [003]  3108.108585: block:block_rq_complete: 94,0 RM () 58789608 + 8 [0]
+            perf 12505 [003]  3108.108595:    block:block_rq_issue: 94,0 RM 4096 () 58789568 + 8 [perf]
+         swapper     0 [003]  3108.108723: block:block_rq_complete: 94,0 RM () 58789568 + 8 [0]
+            perf 12505 [003]  3108.108740:    block:block_rq_issue: 94,0 RA 4096 () 33569728 + 8 [perf]
+            perf 12505 [003]  3108.108742:    block:block_rq_issue: 94,0 RA 4096 () 33569736 + 8 [perf]
+            perf 12505 [003]  3108.108744:    block:block_rq_issue: 94,0 RA 4096 () 33569744 + 8 [perf]
+            perf 12505 [003]  3108.108746:    block:block_rq_issue: 94,0 RA 4096 () 33569752 + 8 [perf]
+            perf 12505 [003]  3108.108748:    block:block_rq_issue: 94,0 RA 4096 () 33569760 + 8 [perf]
+         swapper     0 [003]  3108.108890: block:block_rq_complete: 94,0 RA () 33569728 + 8 [0]
+
+\stoptyping
+
+With a bit of {\tt awk} magic the events and the corresponding timestamps
+are extracted and the latency is calculated.
+
+\starttyping
+perf script --ns | awk '{ gsub(/:/, "") } $5 ~ /issue/ { ts[$6, $10] = $4 }
+    $5 ~ /complete/ { if (l = ts[$6, $9]) { printf "%.f %.f\n", $4 * 1000000,
+    ($4 - l) * 1000000; ts[$6, $10] = 0 } }' > out.lat_us
+\stoptyping
+
+Now to visualize the latencies one needs additional software that is
+available on {\em github}.
+
+\starttyping
+git clone https://github.com/brendangregg/HeatMap.git
+\stoptyping
+
+The last step is to use {\tt trace2heatmap.pl} to generate an interactive
+\infull{SVG} (\SVG\) of the latencies.
+
+\starttyping
+trace2heatmap.pl --unitstime=us  --maxlat=2000 --unitslabel=us \
+--grid --title "fio Latency (DASD)" out.lat_us > heatmap.svg
+\stoptyping
+
+Use your preferred \SVG\ renderer and have a look at the created
+figure. The more red a sqaure is the more latencies were recorded.
+The is a tri modal distribution of latencies that corespond to (1)
+the page cache (2) to the disk cache and last the request that
+went to disk.
+
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Latencies visualized with a heatmap}]
+\externalfigure[heatmap][fullwidth]
+\stopplacefigure
+
+
+\section{Kernel probing}
+
+The nice thing about perf is that it makes no differentiation between
+userspace or kernelspace. What one was doing in the section before in
+userspace can be done similarly for the /Kernel/. The focus in this
+section will be on the /ping/ command. Thats why the examination will
+be filtered from beginning on /icmp_rcv/.
+
+List the functions of the current /Kernel/ and grep for /icmp_rcv/.
+
+\starttyping
+#+BEGIN_SRC bash  :dir /sshx:root@s311lp09:/ :results value code :exports both :cache yes
+# list function for probing here icmp_rcv
+perf probe -k /usr/lib/debug/boot/vmlinux-4.8.0-34-generic  -F  | grep icmp_rcv 2>&1
+icmp_rcv
+\stoptyping
+
+Create a probe on /icmp_rcv/, this time the purpose of the probe is to count
+how many times /icmp_rcv/ was called.
+
+\starttyping
+# create a probe on icmp_rcv
+perf probe -k /usr/lib/debug/boot/vmlinux-4.8.0-34-generic   icmp_rcv 2>&1
+\stoptyping
+
+\starttyping
+TODO: perf stat ping
+\stoptyping
+
+
+
+Record the samples and ping /pserver1/ six times.
+
+\starttyping
+# recored new event probe:icmp_rcv
+# perf record -e probe:icmp_rcv -aR ping -c6 pserver1.boeblingen.de.ibm.com
+PING pserver1.boeblingen.de.ibm.com (9.152.140.6) 56(84) bytes of data.
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=1 ttl=64 time=0.547 ms
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=2 ttl=64 time=0.144 ms
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=3 ttl=64 time=0.143 ms
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=4 ttl=64 time=0.140 ms
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=5 ttl=64 time=0.141 ms
+64 bytes from pserver1.boeblingen.de.ibm.com (9.152.140.6): icmp_seq=6 ttl=64 time=0.146 ms
+
+--- pserver1.boeblingen.de.ibm.com ping statistics ---
+6 packets transmitted, 6 received, 0% packet loss, time 5095ms
+rtt min/avg/max/mdev = 0.140/0.210/0.547/0.150 ms
+\stoptyping
+
+
+With the present /perf.data/ and the /report/ tool one can easily e.g.
+find out in which source file the function /icmp_rcv/ is implemented.
+
+\starttyping
+# show the source file
+#perf report -s srcfile --stdio 2>&1 --stdio-color=never
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 6  of event 'probe:icmp_rcv'
+# Event count (approx.): 6
+#
+# Overhead  Source File
+# ........  ...........
+#
+  100.00% icmp.c
+
+
+\stoptyping
+
+Additionally one can gather the source line of the file reported above
+where the /Tracepoint/ is located.
+
+\starttyping
+# show the source line
+# perf report -s srcline --stdio 2>&1 --stdio-color=never
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 6  of event 'probe:icmp_rcv'
+# Event count (approx.): 6
+#
+# Overhead  Source:Line
+# ........  ...........
+#
+  100.00% icmp.c:973
+
+
+\stoptyping
+
+\starttyping
+# vi ../6ddc/kernel/linux/net/ipv4/icmp.c 973
+\stoptyping
+
+
+** Backlog
+
+\starttyping
+# perf report --stdio 2>&1
+
+# Overhead  Trace output
+# ........  ............
+#
+  100.00% (6eb468)
+
+\stoptyping

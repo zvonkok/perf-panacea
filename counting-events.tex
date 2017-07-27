@@ -1,0 +1,107 @@
+\chapter{Counting events}
+\section{perf stat}
+The {\em perf} tool has two modus operandi. The (1) is counting events
+and the (2) is recording (sampling) events. The focus in this section
+will be on counting various events.
+
+A very simple example of counting events is to call /perf stat/ on ls.
+It shows predefined events that are associated with the /stat/ command.
+As for every {\em perf} command, it can be selected which events to take
+under consideration.
+
+\starttyping
+# perf stat ls
+A    bin	etc    lost+found  opt		  proc	       sbin  usr
+A.c  boot	home   media	   output.svg	  provisioner  srv   var
+app  chroot.sh	lib    mnt	   perf.data	  root	       sys
+B    dev	lib64  op	   perf.data.old  run	       tmp
+
+ Performance counter stats for 'ls':
+
+          0.425128      task-clock (msec)         #    0.753 CPUs utilized
+                 0      context-switches          #    0.000 K/sec
+                 0      cpu-migrations            #    0.000 K/sec
+                94      page-faults               #    0.221 M/sec
+         2,070,136      cycles                    #    4.869 GHz
+         1,284,151      instructions              #    0.62  insn per cycle
+   <not supported>      branches
+   <not supported>      branch-misses
+
+       0.000564777 seconds time elapsed
+
+\stoptyping
+
+To count the number of the raw event CPU_CYCLES , one can call /perf
+stat/ with the /-e/,/--event/ parameter and as an argument the /r0/
+raw event.
+
+\starttyping
+# perf stat -e r0 ls
+A    bin	etc    lost+found  opt		  proc	       sbin  usr
+A.c  boot	home   media	   output.svg	  provisioner  srv   var
+app  chroot.sh	lib    mnt	   perf.data	  root	       sys
+B    dev	lib64  op	   perf.data.old  run	       tmp
+
+ Performance counter stats for 'ls':
+
+         1,951,637      r0
+
+       0.000531562 seconds time elapsed
+
+\stoptyping
+
+To have {\em perf} to print the stats every second for example, than put
+the time in [ms] after /-I,--interval-print/.
+
+\starttyping
+# perf stat -I 1000 -e r0 lat_mem_rd 1 2048 2>&1
+"stride=2048
+#           time             counts unit events
+     1.000112465      4,993,322,683      r0
+0.00195 0.793
+     2.000195215      4,997,804,011      r0
+0.00293 0.793
+     3.000270278      4,997,843,664      r0
+     4.000333966      4,997,740,847      r0
+0.00391 0.793
+     4.498059029      2,487,320,780      r0
+     4.498089872            158,701      r0
+\stoptyping
+
+Additionally to intervall printing a nice feature is to show how the
+events are distributed across cores. Append /--pre-core/ to the /perf
+stat/ command.
+
+\starttyping
+# perf stat -I 1000 -a --per-core -e r0 md5sum /boot/vmlinuz 2>&1
+2d177b173d7e9ff0f00dc990708bf6fc  /boot/vmlinuz
+#           time core         cpus             counts unit events
+     0.005954344 S3-C0           1         29,545,117      r0
+     0.005954344 S3-C1           1             37,632      r0
+     0.005954344 S3-C2           1             63,045      r0
+     0.005954344 S3-C3           1             97,929      r0
+\stoptyping
+
+\subsection{Counting Backlog}
+
+\starttyping
+
+ perf stat -B ./lat_mem_rd 1 2048
+ perf stat -e task-clock,cpu-clock ./lat_mem_rd 1 2048
+
+ perf stat -e cache-misses,L1-dcache-loads,mem-loads ./lat_mem_rd 1 2048
+ perf stat -e cache-misses ./lat_mem_rd 1 2048
+
+ # task-clock is based only on the time spent on the profiled task,
+ # so that doesn't count time spent on other tasks, it has a per thread granularity
+
+ # print out every second
+
+ perf stat -I 1000 -e mem-loads ./lat_mem_rd 1 2048
+ perf stat -I 1000 -e L1-dcache-loads ./lat_mem_rd 1 2048
+ perf stat -I 1000 -e L1-dcache-loads,cache-misses ./lat_mem_rd 1 2048
+
+ # per-core per-cpu ..
+
+ perf stat -I 1000 -e instructions --per-core lat_mem_rd 1 2048
+\stoptyping

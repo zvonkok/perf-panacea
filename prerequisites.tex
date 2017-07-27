@@ -1,0 +1,235 @@
+\section{prerequisites}
+Before deep diving into performance analysis with {\em perf} two important
+questions have to be answered before proceeding. The are two compiler
+flags that make the life of a performance analyst difficult. Missing
+debug information and the omitted frame pointer.
+
+Why these two options are critical in the performance analyst point of
+view is shown in the next two sections.
+
+\subsection{Debug Symbols}
+
+A debug symbols is additional information stored in the binary or in
+another file that expresses information about a programming language
+construct (variable, function, ...) that is mapped to binary code.
+
+A symbolic debugger can gain access to names of variable or function
+names from the source code of the binary. Additionally the debugger
+can inspect variables in memory, step into and step over these
+language constructs in the source code with this additional
+information.
+
+\subsubsection{Where are debug symbols saved?}
+
+For the sake of simplicity the focus will be on \infull{ELF} (\ELF\)
+binaries. Every binary has several sections e.g. the /.text/ section
+holds the executable code, {\tt .bss} section holds statically
+allocated variables. Another interesting section is {\tt .eh_frame}
+that in the first place held information about exception handling in
+{\tt C++}.  Nowadays this section is used for more then just
+exceptions handling. Unwinding the stack, back tracing are just a few
+examples how this section is used additionally.
+
+Beware that even if C-code is compiled without exceptions the
+{\tt .eh_frame} is still present and {\em needed} for reasons stated above.
+
+To have a look at the {\tt .eh_frame} section one can use the {\em readelf}
+program.
+
+\margintext{DWARF-2 Call Frame Information}
+\starttyping
+# readelf --debug-dump=frames /bin/ls
+Contents of the .eh_frame section:
+
+00000000 0000000000000014 00000000 CIE
+  Version:               1
+  Augmentation:          "zR"
+  Code alignment factor: 1
+  Data alignment factor: -8
+  Return address column: 14
+  Augmentation data:     1b
+
+  DW_CFA_def_cfa: r15 ofs 160
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+
+00000018 0000000000000014 0000001c FDE cie=00000000 pc=000000000000656
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+\stoptyping
+
+The { \tt .eh_frame} has a \infull{CIE} (\CIE\) and for every frame a
+\infull{FDE} (\FDE\). With this additional info a debugger can unwind
+the stack even if a the frame pointer is omitted. See next section for
+frame pointer issues.
+
+Each section in a binary has additional flags that describe several
+features of the corresponding section. Among these flags several of
+the flags are {\tt ALLOC}, {\tt LOAD}, or {\tt READONLY}. The {\tt
+  ALLOC} and {\tt LOAD} flags indicate that this section is allocated
+and loaded during runtime.
+
+If source code is compiled with the {\tt -g} compiler flag additional
+sections will be created. The default debugging format nowadays is the
+\infull{DWARF} (\DWARF\) debugging format (dwarfstd.org). Inspecting
+the binary with debug symbols one can see different \DWARF\ sections
+that make up the \DWARF\ data. The next table shows five exemplary
+\DWARF\ sections of the new binary.
+
+\starttyping
+| Section        | Description                                             |
+|----------------+---------------------------------------------------------|
+| .debug_abbrev  | Abbreviations used in the .debug_info section           |
+| .debug_aranges | Lookup table for mapping addresses to compilation units |
+| .debug_frame   | Call frame information                                  |
+| .debug_info    | Core DWARF information section                          |
+| .debug_line    | Line number information                                 |
+\stoptyping
+
+Examining the flags of these section one can notice that they are {\tt
+  READONLY} without the {\tt ALLOC} or {\tt LOAD} flag.
+
+One may ask why such a thorough analysis was done about sections and
+flags, and the answer is, when source code is compiled with debugging
+information/symbols these debugging information are not loaded at
+runtime nor the {\tt .data} or {\tt .text} sections are altered. Debugging
+information will not alter the performance characteristics of a
+workload. The downside is, the binary is bigger, hence you need extra
+disk space to store this information.
+
+To remove these sections one can use the Linux command {\tt strip}. It
+removes the debug sections stated above and the result is a binary
+that looks exactly the same as a binary where the {\tt -g} flag was
+omitted.
+
+Furthermore there is the myth that debug symbols are somehow
+interwoven with executable code so that the execution is slowed
+down. One can extract the {\tt .text} section and compare them to
+see that they are the same independently if the source code
+was compiled with or without the {\tt -g} flag.
+
+\margintext{gcc-a-b}
+\starttyping
+# A is equal to B
+# gcc -g -O2 A.c -o A && strip A
+# gcc    -O2 A.c -o B
+# readelf -x .text A | md5sum
+# readelf -x .text B | md5sum
+f53e82c6da4f3c601fbf5c22e74e5729  -
+f53e82c6da4f3c601fbf5c22e74e5729  -
+\stoptyping
+
+Just for educational purpose the size of the sections between {\tt A} and
+{\tt B}, where evidently no important sections are altered through
+debugging symbols and stripping of the binary is shown in Table
+TODOREF.
+
+\margintext{Size of sections in an ELF binary}
+\placetable[here][tab:elf]{Size of sections in an ELF binary}{\start
+\HL
+\NC Section            \NC size -A -d ./A \NC size -A -d ./B \NC\NR
+\HL
+| .interp            |             15 |             15 |
+| .note.ABI-tag      |             32 |             32 |
+| .note.gnu.build-id |             36 |             36 |
+| .gnu.hash          |             52 |             52 |
+| .dynsym            |            288 |            288 |
+| .dynstr            |            167 |            167 |
+| .gnu.version       |             24 |             24 |
+| .gnu.version_r     |             32 |             32 |
+| .rela.dyn          |            216 |            216 |
+| .rela.plt          |             48 |             48 |
+| .init              |             64 |             64 |
+| .plt               |             96 |             96 |
+| .text              |            464 |            464 |
+| .fini              |             44 |             44 |
+| .rodata            |              4 |              4 |
+| .eh_frame_hdr      |             36 |             36 |
+| .eh_frame          |            132 |            132 |
+| .init_array        |              8 |              8 |
+| .fini_array        |              8 |              8 |
+| .jcr               |              8 |              8 |
+| .dynamic           |            496 |            496 |
+| .got               |             88 |             88 |
+| .data              |             16 |             16 |
+| .bss               |              8 |              8 |
+| .comment           |             52 |             52 |
+
+\stop}
+
+\subsection[framep]{Frame Pointer}
+
+Before going into detail what impact the frame pointer has on
+performance and what issues arise when using {\em perf}, first a little
+information how the frame pointer is used.
+
+When a function is called a certain contiguous section of memory is
+set aside for the program called the stack. The stack saves return
+values, arguments to the called function and e.g. local variables
+(depending on the architecture). The stack works the same as the stack
+known from C or C++. Items are pushed or popped from the stack.
+
+The local variables, values and arguments to the called function are
+grouped into a stack frame that represents a function call. With every
+new function call a new stack frame is allocated and the needed data
+is pushed onto the stack. When the function exists the data is popped
+off the stack. This stack of frames is called the {\em call-stack}.
+The {\em call-stacks} are later used in \in[fgraph] \about[fgraph] to
+visualize them.
+
+\startplacemarginfigure[ title={A small rectangle
+put in the margin.}, reference=fig1]
+\externalfigure[stack][marginwidth]
+\stopplacemarginfigure
+
+The stack pointer always points the top of the stack and is used for
+pushing and popping of elements to the stack. So depending on what is
+done on the stack the stack pointer is moving around (up and
+down). For simpler access of variables on the stack usually the frame
+pointer is used. The frame pointer points to the beginning of the
+stack, the return address where to jump back after completing the
+current function and is not manipulated during the execution of a
+function.
+
+To address a variable on the stack an offset is added to the frame
+pointer and the variable can be accessed through this pointer. It's an
+auxiliary pointer to keep addressing simple, but this addressing of
+things on the stack works with the stack pointer too, but it is more
+{\em complicated}.
+
+Compiling a source code with optimization ({\tt -O1} is enough) the
+compiler will omit the frame pointer per default and will be using the
+stack pointer to access local variables.
+
+Omitting the frame pointer is performance enhancement where
+theoretically one can save a memory write to a cached memory, a few
+clock ticks in entry/exit of a function and a general purpose register
+is freed up. The compiler can utilize the freed register to produce
+code that is smaller and potentially faster.
+
+The problem here is that a debugger will lose an easy way to generate
+a stack trace. If frame pointers are not omitted they can be used to
+walk the stack. The frame pointer is a linked list of stack frames.
+The debugger might still be able to generate a stack trace (when frame
+pointers are ommited) from a different source and that's when the
+{\tt .eh_frame} section comes into play.
+
+The debugger has to implement stack unwinding with the debug
+information in the {\em .eh_frame} section that is generated whether less
+{\tt -g} is provided as a compilation flag or not.
+
+
+\subsubsection{Why is this important for {\em perf}?}
+
+Call-stacks are a nice way to see who is called by whom and this
+information can be saved by {\em perf} as well and the saved
+events/samples can be correctly correlated to the specific function
+calls in the call-stack. Even if the frame pointer is ommitted the
+call stack has to be unwinded by {\em perf}, it has to be implemented
+(architecture specific) in the same manner as for the debugger.

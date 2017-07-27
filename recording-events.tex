@@ -1,0 +1,143 @@
+\chapter{sampling events}
+\section{perf record}
+The second modus operandi is recording (sampling) events. The default frequency of {\em perf}
+for sampling is 1000Hz. To sample at a lower frequency just append the flag /-F <freq>/ to
+/perf record/. So e.g. to sample the cpu-cycles at 49 Hz for a simple workload one can use
+it as follows.
+\starttyping
+# perf record -F 49  -e cpu-cycles -o ./perf.data -- md5sum /boot/vmlin* | cut -c 1-70
+3e9fe83e5d7ecd6cea95928ae5797c4a  /boot/vmlinux-4.11.0-20170505.0.8571
+5537e1d73f7e6bcfccf3340f2f0100bf  /boot/vmlinux-4.11.0-20170505.0.8571
+dabc2613aaffe1ffc6eb1ae9a1a80f89  /boot/vmlinux-4.11.0-20170505.0.8571
+6f6593f862c4a57a64dfb4880196bb99  /boot/vmlinux-4.11.0-20170505.0.daa6
+9bd04638d9da0e44dfade5cc70af9817  /boot/vmlinuz
+81cad85305e6d4f0a3c71db200edc748  /boot/vmlinuz-4.11.0-00002-g6dc0234-
+81cad85305e6d4f0a3c71db200edc748  /boot/vmlinuz-4.11.0-00002-g6dc0234-
+668db32e445a13f5adb9e958b02eb56a  /boot/vmlinuz-4.11.0-03422-g028fd7c-
+668db32e445a13f5adb9e958b02eb56a  /boot/vmlinuz-4.11.0-03422-g028fd7c-
+9bd04638d9da0e44dfade5cc70af9817  /boot/vmlinuz-4.11.0-03424-g99ce1a5-
+9bd04638d9da0e44dfade5cc70af9817  /boot/vmlinuz-4.11.0-03424-g99ce1a5-
+68b317e587506c383d94be767139c3fe  /boot/vmlinuz-4.11.0-20170505.0.daa6
+5e11628b5ae8e092ebca56a2c3bba438  /boot/vmlinuz-4.11.0-rc6-00001-ged58
+5e11628b5ae8e092ebca56a2c3bba438  /boot/vmlinuz-4.11.0-rc6-00001-ged58
+5b502a065a7a7429a8e540d7759366e7  /boot/vmlinuz-4.12.0-rc4-00524-g1b35
+1cb87bbf5e900fca3c61f9311ac7c066  /boot/vmlinuz-4.12.0-rc7
+c4f2c214bf421ed0462c0620f808ed49  /boot/vmlinuz-4.12.0-rc7perf
+c4f2c214bf421ed0462c0620f808ed49  /boot/vmlinuz-4.12.0-rc7perf.old
+\stoptyping
+
+The reason for using 49 as a frequency for sampling is to avoid
+sampling in lockstep with other activities that can lead to misleading
+results.
+
+After sampling the workload there are several ways how to examine the
+gathered data.  The first command is /report/ that shows where the
+events are spend in which function. Here as expected the cycles are
+spent in the function /md5sum/ from /libcryto.so/.
+
+\starttyping[]
+# perf report --stdio --header
+# ========
+# captured on: Mon Jul 10 12:21:44 2017
+# hostname : s311lp09
+# os release : 4.11.0-03424-g99ce1a5-dirty
+# perf version : 4.11.gead9ae
+# arch : s390x
+# nrcpus online : 16
+# nrcpus avail : 16
+# cpudesc : IBM/S390
+# cpuid : IBM/S390
+# total memory : 264212152 kB
+# cmdline : /mnt/6ddc/kernel/latest/tools/perf record -F 49 -e cpu-cycles -- md5sum /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xdefault /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xperformance /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xzfcpdump /boot/vmlinux-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm /boot/vmlinuz /boot/vmlinuz-4.11.0-00002-g6dc0234-dirty /boot/vmlinuz-4.11.0-00002-g6dc0234-dirty.old /boot/vmlinuz-4.11.0-03422-g028fd7c-dirty /boot/vmlinuz-4.11.0-03422-g028fd7c-dirty.old /boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty /boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty.old /boot/vmlinuz-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm /boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty /boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty.old /boot/vmlinuz-4.12.0-rc4-00524-g1b35c0a-dirty /boot/vmlinuz-4.12.0-rc7 /boot/vmlinuz-4.12.0-rc7perf /boot/vmlinuz-4.12.0-rc7perf.old
+# event : name = cpu-cycles, , size = 112, { sample_period, sample_freq } = 49, sample_type = IP|TID|TIME|PERIOD, disabled = 1, inherit = 1, mmap = 1, comm = 1, freq = 1, enable_on_exec = 1, task = 1, sample_id_all = 1, exclude_guest = 1, mmap2 = 1, comm_exec = 1
+# HEADER_CPU_TOPOLOGY info available, use -I to display
+# HEADER_NUMA_TOPOLOGY info available, use -I to display
+# pmu mappings: cpum_sf = 4, cpum_cf = 4, software = 1, tracepoint = 2
+# HEADER_CACHE info available, use -I to display
+# missing features: HEADER_TRACING_DATA HEADER_BRANCH_STACK HEADER_GROUP_DESC HEADER_AUXTRACE HEADER_STAT
+# ========
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3  of event 'cpu-cycles'
+# Event count (approx.): 306120000
+#
+# Overhead  Command  Shared Object        Symbol
+# ........  .......  ...................  ........................
+#
+   100.00%  md5sum   libcrypto.so.1.1.0e  [.] md5_block_data_order
+
+
+#
+# (Tip: Show user configuration overrides: perf config --user --list)
+#
+\stoptyping
+
+The second way is to use /perf script/ that shows a more detailed look of
+the samples. This mode is more of use when developing new functionality for
+perf and debugging perf itself. The section /Heatmap/ will show the use of
+/perf script/ to develop a visualization for latency examination.
+
+\starttyping
+# perf script -D
+
+0xe8 [0x50]: event: 1
+.
+. ... raw event: size 80 bytes
+.  0000:  00 00 00 01 00 01 00 50 ff ff ff ff 00 00 00 00  .......P........
+.  0010:  00 00 00 00 00 00 02 00 00 00 03 ff 80 00 26 70  ..............&p
+.  0020:  00 00 00 00 00 00 02 00 5b 6b 65 72 6e 65 6c 2e  ........[kernel.
+.  0030:  6b 61 6c 6c 73 79 6d 73 5d 5f 74 65 78 74 00 00  kallsyms]_text..
+.  0040:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+0 0xe8 [0x50]: PERF_RECORD_MMAP -1/0: [0x200(0x3ff80002670) @ 0x200]: x [kernel.kallsyms]_text
+
+0x138 [0x80]: event: 1
+.
+. ... raw event: size 128 bytes
+.  0000:  00 00 00 01 00 01 00 80 ff ff ff ff 00 00 00 00  ................
+.  0010:  00 00 03 ff 80 00 28 70 00 00 00 00 00 00 b8 98  ......(p........
+.  0020:  00 00 00 00 00 00 00 00 2f 6c 69 62 2f 6d 6f 64  ......../lib/mod
+.  0030:  75 6c 65 73 2f 34 2e 31 31 2e 30 2d 30 33 34 32  ules/4.11.0-0342
+.  0040:  34 2d 67 39 39 63 65 31 61 35 2d 64 69 72 74 79  4-g99ce1a5-dirty
+\stoptyping
+
+The last but not least examination method of /perf.data/ is to
+annotate code with the samples gathered. The source code is
+interweaved, line-wise with the samples recorded before, here
+/cpu-cycles/.
+
+\starttyping
+# perf annotate --stdio
+ Percent |	Source code & Disassembly of libcrypto.so.1.1.0e for cpu-cy
+----------------------------------------------------------------------
+         :
+         :
+         :
+         :	Disassembly of section .text:
+         :
+         :	0000000000113a48 <MD5_Init@@OPENSSL_1_1_0+0x38>:
+         :	md5_block_data_order():
+         :	#ifndef md5_block_data_order
+         :	# ifdef X
+         :	#  undef X
+         :	# endif
+         :	void md5_block_data_order(MD5_CTX *c, const void *data_, si
+         :	{
+    0.00 :	  113a48:       stmg    %r6,%r15,48(%r15)
+    0.00 :	  113a4e:       lay     %r15,-248(%r15)
+    0.00 :	  113a54:       stg     %r2,240(%r15)
+    0.00 :	  113a5a:       lgr     %r1,%r2
+         :	# else
+         :	    MD5_LONG XX[MD5_LBLOCK];
+         :	#  define X(i)   XX[i]
+         :	# endif
+         :
+         :	    A = c->A;
+    0.00 :	  113a5e:       l       %r2,0(%r2)
+         :	    B = c->B;
+    0.00 :	  113a62:       l       %r11,4(%r1)
+         :	    C = c->C;
+    0.00 :	  113a66:       l       %r9,8(%r1)
+\stoptyping

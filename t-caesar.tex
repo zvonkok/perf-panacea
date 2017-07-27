@@ -1,0 +1,204 @@
+%D \module
+%D   [     file=t-caesar.tex,
+%D      version=0.55,
+%D        title=caesar,
+%D     subtitle=sidenotes,
+%D       author=Andy Thomas,
+%D         date=2012.05.27,
+%D    copyright=Andy Thomas,
+%D      license=Public Domain]
+
+\unprotect
+
+\def\caesarmarginwidth{37mm}
+\def\caesarmargindistance{3.5mm}
+
+%\definepapersize[wissenschaft][width=170mm, height=240mm]
+%\setuppapersize [wissenschaft]
+
+%\setuplayout[topspace=40pt,
+%             header=0pt,
+%             headerdistance=0pt,
+%             height=560pt,
+%             footer=0pt,
+             %
+%             backspace=42pt,
+%             leftmargin=0pt,
+%             width=280pt,
+%             rightmargindistance=\caesarmargindistance,
+%             rightmargin=\caesarmarginwidth]
+
+% doublesided layout to get different verso and recto pages
+\setuppagenumbering[alternative=doublesided]
+
+% setup the side notes
+\setupmargindata
+    [margintext]
+    [location=outer,
+     width=\caesarmarginwidth,
+     align=flushleft,
+     stack=continue,
+     style={\tfx\setupinterlinespace[line=10pt]}]
+
+\usemodule[annotation]
+
+% setup the numbering of the side notes
+\define[2]\caesar_sidenote_command
+    {\high{\rawnumber[sidenote]}%
+     \margintext{\high{#1}\,#2\vskip4pt}}
+
+\defineannotation
+    [sidenote]
+    [alternative=command,
+     command=\caesar_sidenote_command,
+     number=yes]
+
+% text across the full width of the page
+\define[1]\caesar_fullwidth_command
+    {\doifoddpageelse
+        {\doadaptrightskip{-\measure{fullwidth_extra}}}
+        {\doadaptleftskip {-\measure{fullwidth_extra}}}} %#2
+
+\defineannotation
+    [fullwidth]
+    [alternative=command,
+     command=\caesar_fullwidth_command]
+
+% put citations in the margin
+\unexpanded\def\sidecite{\dodoubleempty\sidecite_indeed}
+
+\def\sidecite_indeed[#1][#2]%
+          {\ifsecondargument
+            \getparameters[caesar_sidecite_][left=,right=,#1]%
+            \sidenote
+               {\getvalue{caesar_sidecite_left}%
+                \cite[data][#2]%
+                \getvalue{caesar_sidecite_right}}
+            \else
+            \sidenote{\cite[data][#1]}
+            \fi}
+
+% Enable old style numbers and protrusion
+%\definefontfeature[default][default][onum=yes, protrusion=quality, expansion=quality]
+
+%\starttypescript[mainface]
+%    \definetypeface [mainface] [rm] [serif] [pagella] [default]
+%    \definetypeface [mainface] [ss] [sans]  [heros]   [default]
+%    \definetypeface [mainface] [tt] [mono]  [cursor]  [default]
+%    \definetypeface [mainface] [mm] [math]  [pagella] [default]
+%\stoptypescript
+%\setupbodyfont[mainface,10pt]
+
+% Enable protrusion
+%\setupalign[hz,hanging]
+
+\setupindenting[10pt, yes]
+%%%%%%
+%\setuphead[chapter]
+%          [
+%            style=\itd,
+%            number=no,
+%            before={\blank[5*big,force]},
+%            after={\blank[4*big,force]},
+%          ]
+%
+%\setuphead[section]
+%          [style=\itb,
+%           number=no]
+%
+%\setuphead[subsection]
+%          [style=\ita,
+%           number=no]
+
+%the table of contents
+%\setuplist
+%  [chapter]
+%  [
+%    style=\itc,
+%    width=0pt,
+%    margin=0pt,
+%    before={\blank[2*big]},
+%  ]
+
+% setup the captions
+%\setupcaption[style={\tfx\setupinterlinespace[line=10pt]}, headstyle=\rm, suffix={:}]
+%\setupcaption[table][minwidth=\hsize, width=\hsize]
+
+\definemeasure[fullwidth_extra][\the\dimexpr\caesarmargindistance+\caesarmarginwidth]
+
+\defineexternalfigure[marginwidth] [width=\caesarmarginwidth]
+\defineexternalfigure[textwidth]   [width=\textwidth]
+\defineexternalfigure[fullwidth]   [width=\the\dimexpr\textwidth+\measure{fullwidth_extra}\relax]
+\defineexternalfigure[paperwidth]  [width=\paperwidth]
+
+%\setupfloat[figure][indentnext=no, location=inner, default={here,top,bottom,page}]
+%\setupfloat[table] [indentnext=no, location=inner, default={here,top,bottom,page}]
+
+% \placefigure[outermargin] does not play nice with margintext.
+% We need \margintext{\palcefigure[...]{...}}
+% So we define wrappers with the same interface as default ConTeXt commands
+
+\unexpanded\def\placemarginfigure
+    {\dodoubleargument\caesar_placemarginfigure_indeed}
+
+% Beware, we override the figure location!
+\def\caesar_placemarginfigure_indeed[#1][#2]#3#4%
+    {\ifsecondargument
+       \margintext{\placefigure[here][#2]{#3}{#4}}%
+     \else
+       \margintext{\placefigure[here][#1]{#3}{#4}}%
+     \fi}
+
+\unexpanded\def\startplacemarginfigure
+    {\dosingleargument\caesar_start_place_margin_figure}
+
+\def\caesar_start_place_margin_figure[#1]#2\stopplacemarginfigure
+    {\margintext
+      {\startplacefigure[#1, location=here]% Beware, we override location!
+       #2%
+      \stopplacefigure}}
+
+\definefloat [widetable][widetables][table]
+\setupcaption[widetable][width=\the\dimexpr\textwidth+\measure{fullwidth_extra}\relax]
+
+% Margin table is same as margin figure but
+% the following does not work if | in used in the table
+\unexpanded\def\placemargintable
+    {\dodoubleargument\caesar_placemargintable_indeed}
+
+% Beware, we override the table location!
+\def\caesar_placemargintable_indeed[#1][#2]#3#4%
+    {\ifsecondargument
+       \margintext{\placetable[here][#2]{#3}{#4}}%
+     \else
+       \margintext{\placetable[here][#1]{#3}{#4}}%
+     \fi}
+
+\unexpanded\def\startplacemargintable
+    {\dosingleargument\caesar_start_place_margin_table}
+
+\def\caesar_start_place_margin_table[#1]#2\stopplacemargintable
+    {\margintext
+      {\startplacetable[#1, location=here]% Beware, we override location!
+        #2%
+      \stopplacetable}}
+
+\setvariables
+  [titlepage]
+  [
+    title=,
+    author=,
+    publisher=,
+    set={\setups{caesar:titlepage}},
+  ]
+
+\startsetups caesar:titlepage
+    {\ssc\noindentation\kerncharacters[0.125]\WORD{\getvariable{titlepage}{author}}\endgraf}
+    \blank[100pt]
+    {\setupbodyfont[sansserif,38pt]\setupinterlinespace[line=50pt]
+     \noindentation\kerncharacters[0.15]\WORD{\getvariable{titlepage}{title}}\endgraf}
+    \vfill
+    {\ssc\noindentation\kerncharacters[0.125]\WORD{\getvariable{titlepage}{publisher}}\endgraf}
+\stopsetups
+
+\protect \endinput

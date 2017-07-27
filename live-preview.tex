@@ -1,0 +1,31 @@
+\section{Live preview}
+
+To get a live preview like in the Linux tool /top/, just issue /perf
+top/ where one can similarly to /top/ sort the columns.
+
+\starttyping
+# perf top # interactive
+Samples: 2K of event 'cycles:ppp', Event count (approx.): 406286143513
+Overhead  Shared Object                     Symbol
+  37,89%  chrome                            [.] 0x0000000003e6dcb4
+  37,89%  perf-6110.map                     [.] 0x00003c316eabe4f6
+  14,50%  [vdso]                            [.] __vdso_gettimeofday
+   9,72%  [kernel]                          [k] rb_next
+   0,00%  [kernel]                          [k] _nv017513rm
+   0,00%  nvidia_drv.so                     [.] 0x0000000000084f46
+   0,00%  chrome                            [.] 0x00000000014eb2ff
+   0,00%  nvidia_drv.so                     [.] 0x000000000005a8cd
+   0,00%  [kernel]                          [k] pci_conf1_read
+   0,00%  libc-2.24.so                      [.] _int_malloc
+   0,00%  nvidia_drv.so                     [.] 0x000000000005a840
+   0,00%  [kernel]                          [k] unix_poll
+   0,00%  nvidia_drv.so                     [.] 0x000000000009ea1d
+\stoptyping
+
+If only a specific event should be monitored, provide the event as an
+arguemnt to /-e/, /--event/.
+
+\starttyping
+# perf top -e task-clock # Software event
+# perf top -e r0         # Raw PMU event
+\stoptyping

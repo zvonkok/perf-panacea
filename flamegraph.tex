@@ -1,0 +1,317 @@
+% -*- mode:   context; -*-
+\chapter[fgraph]{Flamegraph}
+\section{Call-Stacks}
+
+In \in[framep] \about[framep] it was described what a stack is and how
+it works.  In this section one will use {\em perf} to capture or
+sample these {\em call-stacks} and visualize the in a very specific
+way, namely in a {\em flamegraph}.
+
+But first lets print out some example call-stacks from a running
+application and deduce how to interpret a {\em flamegraph}. For this
+the {\tt eu-stack}\sidenote{For Java use {\tt jstacks}} tool will be
+used for examination. It shows call-stacks from an application
+currently running.
+
+The application used here is {\tt pi} from the {\em gmpbench} suite. It
+calculates the number $\pi$ up to the, as an argument given, decimal places.
+
+\margintext{Calculate 1000 decimal places for the number $\pi$ using
+  Chudnovsky's algorithm and show info about the \ELF\ auxiliary
+  vector. \ELF\ auxiliary vectors are a mechanism to transfer certain
+  kernel level information to the user processes}
+\starttyping
+#  LD_SHOW_AUXV=1 ./pi 1000
+AT_SYSINFO_EHDR: 0x3ff8e6fe000
+AT_HWCAP:    esan3 zarch stfle msa ldisp eimm dfp edat etf3eh highgprs te vx
+AT_PAGESZ:       4096          /* System page size                  */
+AT_CLKTCK:       100           /* Program headers for program       */
+AT_PHDR:         0x2aa0cc80040 /* Frequency of times()              */
+AT_PHENT:        56            /* Size of program header entry      */
+AT_PHNUM:        9             /* Size of program header entry      */
+AT_BASE:         0x3ff8e680000 /* Size of program header entry      */
+AT_FLAGS:        0x0           /* Flags                             */
+AT_ENTRY:        0x2aa0cc81c58 /* Flags                             */
+AT_UID:          0             /* Real uid                          */
+AT_EUID:         0             /* Effective uid                     */
+AT_GID:          0             /* Real gid                          */
+AT_EGID:         0             /* Effective gid                     */
+AT_SECURE:       0             /* Treat executable securely         */
+AT_RANDOM:       0x3ffca77e3bc /* Address containing a random value */
+AT_EXECFN:       ./pi          /* Pathname used to execute program  */
+AT_PLATFORM:     z13           /* Hardware platform                 */
+\stoptyping
+%
+During the runtime of {\tt pi} one can call {\tt eu-stack -p `pidof
+  pi`} periodically e.g. every 1/2 seconds to simulate the call-stack
+sampling of {\tt perf record -F2 } with a frequency of {\em 2 Hz}. This way
+one can manually collect 2 call-stacks per second.
+
+Here are 3 call-stack samples from the beginning of {\tt pi}.
+
+\margintext{The addresses for {\tt build_sieve} can be and are different, because this was the active
+  stack frame, when sampled, and the address is the {\em instruction pointer} at that time. To know
+where in the code one was exactly when sampled, {\tt addr2line} can be used}
+
+\starttyping
+PID 18770 - process                      PID 18770 - process                       PID 18770 - process
+TID 18770:                               TID 18770:                                TID 18770:
+#0  0x0000000000403bcc build_sieve        #0  0x0000000000403bc3 build_sieve        #0  0x0000000000403bff build_sieve
+#1  0x0000000000403d59 picomp             #1  0x0000000000403d59 picomp             #1  0x0000000000403d59 picomp
+#2  0x00000000004007db main               #2  0x00000000004007db main               #2  0x00000000004007db main
+#3  0x000000000042cbe6 generic_start_main #3  0x000000000042cbe6 generic_start_main #3  0x000000000042cbe6 generic_start_main
+#4  0x000000000042ce6e __libc_start_main  #4  0x000000000042ce6e __libc_start_main  #4  0x000000000042ce6e __libc_start_main
+#5  0x0000000000400dea _start             #5  0x0000000000400dea _start             #5  0x0000000000400dea _start
+
+addr2line -a 0x0000000000403bcc -e ./pi   addr2line -a 0x0000000000403bc3 -e ./pi   addr2line  -a 0x0000000000403bff -e ./pi
+0x0000000000403bcc                        0x0000000000403bc3                        0x0000000000403bff
+gmpbench-0.2/pi.c:485                     gmpbench-0.2/pi.c:484                     gmpbench-0.2/pi.c:488
+
+485:   s[i/2].fac = i;                    484:  if (s[i/2].fac == 0) {              488:for (j=i*i, k=i/2; j<=n; j+=i+i, k++) {
+
+\stoptyping
+
+Now to visualize the call-stacks one needs additional software that is
+available on {\em github}.
+
+\starttyping
+git clone https://github.com/brendangregg/FlameGraph.git
+\stoptyping
+
+There are several tools to convert {\em call-stacks} from different
+source ({\em perf,dtrace,...}) to a format that {\tt flamegraphs.pl}
+understands. First it will be done manually and then shown how to
+automate these steps with {\em perf}.
+
+The input file for {\tt flamegraphs.pl} is as follows, each line
+defines exactly one unique {\em call-stack} with the count of it.
+So e.g. in the case above the {\em folded} {\em call-stack} file
+should look like this.
+
+\starttyping
+# cat pi.man.folded
+_start;__libc_start_main;generic_start_main;main;picomp;build_sieve 3
+\stoptyping
+
+This file can now be used to generate the {\em flamegraph}.
+
+\starttyping
+cat pi.man.folded > flamegraph.pl > pi.man.svg
+\stoptyping
+
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Flamegraph of 3 {\em call-stack} samples}]
+\externalfigure[pi.man.svg][textwidth]
+\stopplacefigure
+
+\section{Perf Flamegraph}
+
+The previous chapter showed how one can generate a {\em flamegraph} manually. Now
+let's see how to automate or generate a {\em flamegraph} with {\em perf}.
+
+First, sample the workload with the {\tt --call-graph=dwarf} switch.
+
+\margintext{Limit the frequency of sampling to your needs, otherwise {\em perf} could
+slow down your system to uselessness, there is a lot of \CPU\ and memory load. }
+\starttyping
+# perf record -F99 --call-graph=dwarf -- ./pi 1000
+\stoptyping
+
+Combine all the steps explained above to one line and generate the {\em flamegraph}.
+
+\starttyping
+# perf script | stackcollapse-perf.pl | flamegraph.pl > pi.svg
+\stoptyping
+
+
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Complete Flamegraph of {\tt pi}}]
+\externalfigure[pi.svg][fullwidth]
+\stopplacefigure
+
+The generated \SVG\ is a interactive graphic, where one can search for
+a symbol or just activate a specific {\em call-stack} by clicking on
+it. The broader a bar is the more samples where gathered for this {\em
+  call-stack} and hence more time was spent in it. Beware that {\em
+  perf} was in sampling mode, which means, that {\em call-stack} that
+were really small in time, can but not necesserialy have to be
+sampled. If {\em call-stacks} are missing try to increase the sampling
+frequency.
+
+
+\section{Differential Flamegraphs}
+Differential flame graphs visualize the differences between two
+performance profiles. It can be used e.g. for regression runs or to
+identify possible performance enhancement like compiler switches,
+tuning parameters and so on. Let's try to examine how the different
+optimization levels affect performance of the workload {\tt
+  pi}. Therefore the workload will be compiled with {\tt -O1, -O2,
+  -O3} and the corresponding {\em flamegraphs} for each run will be
+generated. The last step is to generate the {\em differential
+  flamegraphs} to see the differences.
+
+First generate the workloads.
+\starttyping
+# gcc -O3 -g pi.c -o pi.3 -static -lgmp -lm
+# gcc -O2 -g pi.c -o pi.2 -static -lgmp -lm
+# gcc -O1 -g pi.c -o pi.1 -static -lgmp -lm
+\stoptyping
+
+Now for each optimization level sample the {\em call-stacks}
+
+\starttyping
+# perf record -F99 --call-graph=dwarf -o pi.1.data -- ./pi.1 1000
+# perf record -F99 --call-graph=dwarf -o pi.2.data -- ./pi.2 1000
+# perf record -F99 --call-graph=dwarf -o pi.3.data -- ./pi.3 1000
+\stoptyping
+
+The next step is to generate the folded stacks.
+
+\starttyping
+# perf script -i pi.1.data | stackcollapse-perf.pl > pi.1.folded
+# perf script -i pi.2.data | stackcollapse-perf.pl > pi.2.folded
+# perf script -i pi.3.data | stackcollapse-perf.pl > pi.3.folded
+\stoptyping
+
+And as a last step the {\em differential flamegraphs} can be created.
+\starttyping
+difffolded.pl -n pi.1.folded pi.2.folded | flamegraph.pl --negate > pi.diff12.svg
+difffolded.pl -n pi.2.folded pi.3.folded | flamegraph.pl --negate > pi.diff23.svg
+\stoptyping
+
+
+\placefigure
+  [here]
+  [fig:fgdiff]
+  {Differential Flamegraphs between compiler optimization levels}
+  {\startcombination[1*2]
+    {\externalfigure[pi.diff12.svg][textwidth]}
+    {\externalfigure[pi.diff23.svg][textwidth]}
+  \stopcombination}
+
+Functions that are performing better are coloured blue and functions that
+perform worse are coloured red. The intensity shows how much better or worse
+the functions get in terms of performance.
+
+\section{Java Flamegraph}
+
+The nice thing about {\em perf} with {\em Java} is that it's possible
+to not only sample {\em Java} like {\em Jinsight} but it can also
+sample the \JVM\ with the {\em garbage collector}, userspace and the
+kernel. The complete stack can be examined and analyzed.
+
+Since {\em Java} has a deep call hierarchy one should increase the
+maximum stack-frame count so that the complete {\em call-stack} is
+recorded.
+
+\starttyping
+# sysctl -w kernel.perf_event_max_stack=512
+\stoptyping
+
+For the \infull{JIT} (\JIT\) compiled methods {\em perf} needs
+additional information to map the samples correctly to the
+symbols. {\em Perf} has a nifty mechanism for finding missing mappings
+(from instruction addresses to symbols/methods). When {\tt perf
+  report} encounters missing mappings it searches for maps in {\tt
+  /tmp/perf-<pid>.map}. This allows runtimes that generate code on the
+fly to supply dynamic symbol mappings to be used with {\em perf}.
+That is the file where the next tool will create mappings for
+\JIT\-compiled methods.
+
+\starttyping
+# git clone  https://github.com/jvm-profiling-tools/perf-map-agent.git
+cd perf-map-agent
+cmake .
+make
+\stoptyping
+
+There is another issue with {\em Java} namely the {\em frame-pointer}.
+The \JVM\ compiler is ommiting the {\em frame-pointer} and not generating
+\DWARF\ debuginfo to unwind the stack. Luckily since \JDK\ Version 8 there
+is a new option to preserve the {\em frame-pointer}. Beware that preserving
+the {\em frame-pointer} the performance can degrade by up to 2\%. A prerequisite
+for sampling {\em Java call-stacks} is the following option.
+\margintext{This option is not (yet) available in the \IBM\ \JDK\ }
+\starttyping
+-XX:+PreserveFramePointer
+\stoptyping
+
+For the next steps one will use the workload {\em SPECjbb2005} with the modified
+{\em Java} command line. To record and get the right maps for the workload
+the scripts in {\tt perf-map-agent/bin} can be used for easy of use. But first
+export  {\tt JAVA_HOME} to the correct \JDK\ .
+
+\starttyping
+export JAVA_HOME=/usr/lib/jvm/java-1.9.0-openjdk-amd64
+\stoptyping
+
+First start the workload.
+\starttyping
+./SPECjbb2005Run 1073741824  /usr/lib/jvm/java-1.9.0-openjdk-amd64/bin  4096m   4096m   jitc  0   0 1  ""   0  0 "keep"
+\stoptyping
+
+
+Now collect the {\em call-stacks}.
+
+\starttyping
+# ./perf-java-record-stack 10313
++++ readlink -f ./perf-java-record-stack
+++ dirname /home/zkosic/git/perf-map-agent/bin/perf-java-record-stack
++ PERF_MAP_DIR=/home/zkosic/git/perf-map-agent/bin/..
++ PID=10313
++ '[' -z '' ']'
++ PERF_JAVA_TMP=/tmp
++ '[' -z '' ']'
++ PERF_RECORD_SECONDS=15
++ '[' -z '' ']'
++ PERF_RECORD_FREQ=99
++ '[' -z '' ']'
++ PERF_DATA_FILE=/tmp/perf-10313.data
++ echo 'Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)'
+Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)
++ sudo perf record -F 99 -o /tmp/perf-10313.data -g -p 10313 -- sleep 15
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.681 MB /tmp/perf-10313.data (3555 samples) ]
+\stoptyping
+
+
+\starttyping
+# perf script -i /tmp/perf-10313.data | stackcollapse-perf.pl | flamegraph.pl --color=java --hash > jbb.jsvg
+\stoptyping
+
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Flamegraph of {\em Java}, {\em JDK} and Kernel}]
+\externalfigure[jbb.svg][paperwidth]
+\stopplacefigure
+
+
+
+
+\starttyping
+# export PERF_MAP_OPTIONS=unfoldall
+# perf-map-agent/bin# ./perf-java-record-stack 11868
++++ readlink -f ./perf-java-record-stack
+++ dirname /home/zkosic/git/perf-map-agent/bin/perf-java-record-stack
++ PERF_MAP_DIR=/home/zkosic/git/perf-map-agent/bin/..
++ PID=11868
++ '[' -z '' ']'
++ PERF_JAVA_TMP=/tmp
++ '[' -z '' ']'
++ PERF_RECORD_SECONDS=15
++ '[' -z '' ']'
++ PERF_RECORD_FREQ=99
++ '[' -z '' ']'
++ PERF_DATA_FILE=/tmp/perf-11868.data
++ echo 'Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)'
+Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)
++ sudo perf record -F 99 -o /tmp/perf-11868.data -g -p 11868 -- sleep 15
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.653 MB /tmp/perf-11868.data (3414 samples) ]
+
+\stoptyping
+
+
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Flamegraph of {\em Java}, {\em JDK} and Kernel}]
+\externalfigure[jbb.unfold.svg][fullwidth]
+\stopplacefigure

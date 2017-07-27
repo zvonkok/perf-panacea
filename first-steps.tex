@@ -1,0 +1,67 @@
+\chapter{First Steps}
+\section{perf list}
+
+To get a first overview which events are known to perf use the perf
+command {\tt list}. There are several groups of events that are known to
+perf, namely: Hardware, Software, \PMU\, raw hardware,
+tracepoints and \infull{SDT} (\SDT\) events.
+
+\starttyping
+# perf list
+
+List of pre-defined events (to be used in -e):
+
+  cpu-cycles OR cycles                               [Hardware event]
+  instructions                                       [Hardware event]
+
+  alignment-faults                                   [Software event]
+  bpf-output                                         [Software event]
+  context-switches OR cs                             [Software event]
+  cpu-clock                                          [Software event]
+  cpu-migrations OR migrations                       [Software event]
+  dummy                                              [Software event]
+  emulation-faults                                   [Software event]
+  major-faults                                       [Software event]
+  minor-faults                                       [Software event]
+  page-faults OR faults                              [Software event]
+  task-clock                                         [Software event]
+\stoptyping
+
+To narrow the output just append the specific group identifier to
+/list/. Lets see which events from the PMU are known to perf.
+
+\starttyping
+# perf list pmu
+
+List of pre-defined events (to be used in -e):
+
+  cpum_cf/AES_BLOCKED_CYCLES/                        [Kernel PMU event]
+  cpum_cf/AES_BLOCKED_FUNCTIONS/                     [Kernel PMU event]
+  cpum_cf/AES_CYCLES/                                [Kernel PMU event]
+  cpum_cf/AES_FUNCTIONS/                             [Kernel PMU event]
+  cpum_cf/CPU_CYCLES/                                [Kernel PMU event]
+  cpum_cf/DEA_BLOCKED_CYCLES/                        [Kernel PMU event]
+  cpum_cf/DEA_BLOCKED_FUNCTIONS/                     [Kernel PMU event]
+  cpum_cf/DEA_CYCLES/                                [Kernel PMU event]
+  cpum_cf/DEA_FUNCTIONS/                             [Kernel PMU event]
+  cpum_cf/DTLB1_GPAGE_WRITES/                        [Kernel PMU event]
+\stoptyping
+
+Simple regex can be also used to narrow the output for specific
+functions, here e.g. show only the syscalls events known to {\em perf}.
+
+\starttyping
+# perf list 'syscalls:*'
+
+List of pre-defined events (to be used in -e):
+
+  syscalls:sys_enter_access                          [Tracepoint event]
+  syscalls:sys_enter_acct                            [Tracepoint event]
+  syscalls:sys_enter_add_key                         [Tracepoint event]
+  syscalls:sys_enter_adjtimex                        [Tracepoint event]
+  syscalls:sys_enter_alarm                           [Tracepoint event]
+  syscalls:sys_enter_bdflush                         [Tracepoint event]
+  syscalls:sys_enter_bind                            [Tracepoint event]
+  syscalls:sys_enter_bpf                             [Tracepoint event]
+  syscalls:sys_enter_brk                             [Tracepoint event]
+\stoptyping

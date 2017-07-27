@@ -1,0 +1,308 @@
+% TeX-master: perf
+% -*- mode:   context; -*-
+\definealternativestyle [syn:sc]  [\word\sc] []
+
+\definesynonyms[abbreviation][abbreviations][\infull]
+\setupsynonyms[abbreviation][textstyle=normal, synonymstyle=syn:sc]
+
+\abbreviation{PMU}{Performance Monitoring Unit}
+\abbreviation{eBPF}{Enhanced Berkeley Packet Filter}
+%\abbreviation{}{}
+\abbreviation{ELF}{Executable and Linkable Format}
+\abbreviation{LPAR}{Logical Partition}
+\abbreviation{HMC}{Hardware Managment Console}
+\abbreviation{SDT}{Statically Defined Tracing}
+\abbreviation{CIE}{Common Information Entry}
+\abbreviation{FDE}{Frame Description Entry}
+\abbreviation{DWARF}{Debugging With Attributed Records Format}
+\abbreviation{SVG}{Scalable Vector Graphics}
+\abbreviation{CPU}{Central Processing Unit}
+\abbreviation{JVM}{Java Virtual Machine}
+\abbreviation{JIT}{Just-in-time}
+\abbreviation{JDK}{Java Development Kit}
+\abbreviation{IBM}{International Business Machines}
+
+
+\mainlanguage[en]
+\language[en]
+
+\enableregime[utf]
+
+\usemodule[caesar]
+
+% font features
+\definefontfeature
+  [default]
+  [default]
+  [protrusion=quality,expansion=quality,script=latn,onum=yes]
+
+\setupalign[hz,hanging]
+
+
+% color
+\setupcolors[state=start]
+\usecolors[xwi]
+
+% figures
+\setupexternalfigures[directory={fig}]
+
+
+% typing
+\definetextbackground[verbatim]
+[background=color,
+backgroundcolor=whitesmoke,
+voffset=\bodyfontsize,
+frame=off,
+location=paragraph]
+
+
+\definepapersize[A4MOD][width=198mm,height=297mm]
+%\setuppapersize[A4MOD]
+% Setup verbatim
+\setuptyping[typing][
+        margin=2mm,
+        bodyfont=6.0pt,
+        before={\blank[standard]\starttextbackground[verbatim]},
+        after={\stoptextbackground\blank[standard]}]
+
+% global layout
+\setuplayout[
+    grid=normal,
+    width=132mm,
+    height=205mm, % + 7 chapter offset
+    topspace=26mm, % - 7 chapter offset 7 == 2 * 10pt header + blank skip
+    header=0mm,
+    footer=0mm,
+    backspace=22mm,
+    rightmargindistance=3.5mm,
+    leftmargindistance=3.5mm,
+    rightmargin=37mm,
+    ]
+
+
+% scriptina
+\starttypescript [serif] [scriptina]
+	\definefontsynonym [Serif] [Scriptina]
+\stoptypescript
+
+\starttypescript [serif] [scriptina]
+	\definefontsynonym [Scriptina] [name:scriptina]
+\stoptypescript
+
+\starttypescript [scriptina]
+  \definetypeface [scriptina] [rm] [serif] [scriptina] [default]
+\stoptypescript
+
+% lindisplay
+\starttypescript [serif] [lindisplay]
+	\definefontsynonym [Serif] [Lindisplay]
+\stoptypescript
+
+\starttypescript [serif] [lindisplay]
+	\definefontsynonym [Lindisplay] [name:linlibertinedisplayo]
+\stoptypescript
+
+\starttypescript [lindisplay]
+  \definetypeface [lindisplay] [rm] [serif] [lindisplay] [default]
+\stoptypescript
+
+
+
+% libertine
+\starttypescriptcollection[libertine]
+
+    \starttypescript [serif] [libertine]
+        \definefontsynonym [Libertine-Regular]     [name:linlibertineo]
+        \definefontsynonym [Libertine-Italic]      [name:linlibertineoi] % z
+        \definefontsynonym [Libertine-Slanted]     [name:linlibertineoi]
+        \definefontsynonym [Libertine-Bold]        [name:linlibertineob]
+        \definefontsynonym [Libertine-BoldItalic]  [name:linlibertineobi]
+        \definefontsynonym [Libertine-BoldSlanted] [name:linlibertineobi]
+    \stoptypescript
+
+    \starttypescript [serif] [libertine] [name]
+        \setups[font:fallback:serif]
+        \definefontsynonym [Serif]            [Libertine-Regular]     [features=default]
+        \definefontsynonym [SerifItalic]      [Libertine-Italic]      [features=default]
+        \definefontsynonym [SerifSlanted]     [Libertine-Slanted]     [features=default]
+        \definefontsynonym [SerifBold]        [Libertine-Bold]        [features=default]
+        \definefontsynonym [SerifBoldItalic]  [Libertine-BoldItalic]  [features=default]
+        \definefontsynonym [SerifBoldSlanted] [Libertine-BoldSlanted] [features=default]
+        \definefontsynonym [SerifCaps]        [Libertine-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [sans] [biolinum]
+        \setups[font:fallback:sans]
+        \definefontsynonym [Biolinum-Regular]     [name:linbiolinumo]
+        \definefontsynonym [Biolinum-Italic]      [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-Slanted]     [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-Bold]        [name:linbiolinumob]
+        \definefontsynonym [Biolinum-BoldItalic]  [name:linbiolinumoi]
+        \definefontsynonym [Biolinum-BoldSlanted] [name:linbiolinumob]
+    \stoptypescript
+
+    \starttypescript [sans] [biolinum] [name]
+        \setups[font:fallback:sans]
+        \definefontsynonym [Sans]           [Biolinum-Regular]     [features=default]
+        \definefontsynonym [SansBold]       [Biolinum-Bold]        [features=default]
+        \definefontsynonym [SansItalic]     [Biolinum-Italic]      [features=default]
+        \definefontsynonym [SansSlanted]    [Biolinum-Slanted]     [features=default]
+        \definefontsynonym [SansBoldItalic] [Biolinum-BoldSlanted] [features=default]
+        \definefontsynonym [SansCaps]       [Biolinum-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [mono] [consolas]
+        \setups[font:fallback:mono]
+        \definefontsynonym [Consolas-Regular]     [name:consolas]
+        \definefontsynonym [Consolas-Italic]      [name:consolasitalic]
+        \definefontsynonym [Consolas-Slanted]     [name:consolasitalic]
+        \definefontsynonym [Consolas-Bold]        [name:consolasbold]
+        \definefontsynonym [Consolas-BoldItalic]  [name:consolasbolditalic]
+        \definefontsynonym [Consolas-BoldSlanted] [name:consolasbolditalic]
+    \stoptypescript
+
+    \starttypescript [mono] [consolas] [name]
+        \setups[font:fallback:mono]
+        \definefontsynonym [Mono]           [Consolas-Regular]     [features=default]
+        \definefontsynonym [MonoBold]       [Consolas-Bold]        [features=default]
+        \definefontsynonym [MonoItalic]     [Consolas-Italic]      [features=default]
+        \definefontsynonym [MonoSlanted]    [Consolas-Slanted]     [features=default]
+        \definefontsynonym [MonoBoldItalic] [Consolas-BoldSlanted] [features=default]
+        \definefontsynonym [MonoCaps]       [Consolas-Regular]     [features=smallcaps]
+    \stoptypescript
+
+    \starttypescript [libertine]
+        \definetypeface [libertine] [rm] [serif] [libertine] [default]
+        \definetypeface [libertine] [ss] [sans]  [biolinum]  [default]
+        \definetypeface [libertine] [tt] [mono]  [consolas]   [default][rscale=0.85]
+        %definetypeface [libertine] [mm] [math]  [times]     [efault]
+        \quittypescriptscanning
+    \stoptypescript
+
+\stoptypescriptcollection
+
+\usetypescript[libertine]
+\setupbodyfont[libertine, 10pt]
+
+
+\definecharacterkerning [extrakerning]  [factor=.075]
+\definecharacterkerning [slightkerning] [factor=.075]
+
+% headers
+\define[2]\PlaceChapter
+   {\hbox{\vtop{\setcharacterkerning[slightkerning]#2}  \rlap{\hskip\rightmargindistance#1}}}
+
+\definefont[ChapterNumber][Serif at 10pt]
+
+
+%\setuphead[chapter]   [color=darkred,alternative=margin, style=WORD, numberstyle=\tfd]
+
+\setuphead
+   [chapter]
+   [command=\PlaceChapter,
+   numberstyle=ChapterNumber,
+   style=\WORD,
+   color=darkred,
+   header=empty,
+   footer=empty,
+   before={\blank[line]},
+   after={\blank[line]}
+]
+
+
+\definefontfeature
+    [onum]
+    [mode=node,language=dflt,script=latn,onum=yes,smcp=yes]
+
+\def\om{\setfontfeature{onum}\kerncharacters[.05]}
+
+\setuphead
+  [section]
+  [color=darkred,
+    alternative=margin,
+    style=smallcaps,
+    textstyle=\om\word,
+    before={\blank[line]},
+    after={\blank[line]} ]
+
+
+\setuphead[subsection]
+          [color=darkred,
+            alternative=margin,
+            style=italic,
+            textstyle=,
+            before={\blank[line]},
+            after={\blank[line]} ]
+
+\setupcaptions[
+  style=\tfx,
+  headstyle=\om\tfx\word,
+  headcolor=darkred,
+  align=middle,
+]
+
+\setupinteraction
+  [state=start,
+    color=darkred,
+    style=\om\word]
+
+% clickable table of contents
+\setupcombinedlist[content][interaction=all, color=black]
+
+\setupreferencing[
+left={},
+right={},
+interaction=text, % critical
+]
+
+% DEBUG
+%\showgrid
+%\showframe
+%\showlayout
+
+
+
+%\setupcaption [figure][location={outermargin,high}]
+%-------------------------------------------------------------------------------
+\starttext
+%\showlayout
+%\setuplayout[wide]
+
+\startpagefigure[titlepage.pdf][page=1]\stoppagefigure
+
+
+\startbodymatter
+
+\completecontent
+
+%\part{perf}
+
+\input introduction
+\input prerequisites
+%\input system-prerequisites
+\input first-steps
+\input live-preview
+\input counting-events
+\input recording-events
+\input trace
+\input scheduling
+\input tracepoints
+\input probes
+\input flamegraph
+%\input script
+
+%\part{eBPF}
+
+\stopbodymatter
+
+
+
+\startappendices
+
+\input appendix
+
+\stopappendices
+
+
+
+\stoptext

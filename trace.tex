@@ -1,0 +1,142 @@
+* Trace (strace)
+
+Based on the /perf trace/ command it will be shown how to use counting
+and recording to examine an application.
+
+By means of a simple /benchmark/, here /dd/ issuing some reads and
+writes, it will be shown that {\em perf} is significantly faster than its
+counterpart /strace/.
+
+\starttyping
+# sample command to compare strace with perf trace performance
+# dd if=/dev/zero of=/dev/null bs=512 count=1000k 2>&1
+1024000+0 records in
+1024000+0 records out
+524288000 bytes (524 MB, 500 MiB) copied, 0.290385 s, 1.8 GB/s
+\stoptyping
+
+Now lets have a look how long does /strace/ take to count
+the syscalls issued in the case of /dd/.
+
+\starttyping
+# strace counting of syscalls of dd
+strace -c dd if=/dev/zero of=/dev/null bs=512 count=1000k 2>&1
+1024000+0 records in
+1024000+0 records out
+524288000 bytes (524 MB, 500 MiB) copied, 33.4576 s, 15.7 MB/s
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 50.95    1.476851           1   1024003           read
+ 49.05    1.421691           1   1024003           write
+  0.00    0.000048          48         1           execve
+  0.00    0.000035           3        14         7 open
+  0.00    0.000021           2        10           mmap
+  0.00    0.000015           2        10           close
+  0.00    0.000009           2         5           fstat
+  0.00    0.000009           3         3           mprotect
+  0.00    0.000006           2         3         3 access
+  0.00    0.000006           2         3           brk
+  0.00    0.000004           2         2           dup2
+  0.00    0.000004           1         3           rt_sigaction
+  0.00    0.000003           3         1           munmap
+  0.00    0.000001           1         1           lseek
+------ ----------- ----------- --------- --------- ----------------
+100.00    2.898703               2048062        10 total
+\stoptyping
+
+The running time of the native /dd/ was ~0.3 [s], where the counting
+of syscalls with /strace/ took 33.5 [s] (111 times slower). Now lets
+see how {\em perf} performs.
+
+\starttyping
+# pref  counting of syscalls of dd
+perf stat -e 'syscalls:sys_enter_*' dd if=/dev/zero of=/dev/null bs=512 count=1000k 2>&1 | head -n 20
+1024000+0 records in
+1024000+0 records out
+524288000 bytes (524 MB, 500 MiB) copied, 0.39246 s, 1.3 GB/s
+
+ Performance counter stats for 'dd if=/dev/zero of=/dev/null bs=512 count=1000k':
+
+         1,024,003      syscalls:sys_enter_read
+         1,024,003      syscalls:sys_enter_write
+                 0      syscalls:sys_enter_socket
+                 0      syscalls:sys_enter_socketpair
+                 0      syscalls:sys_enter_bind
+                 0      syscalls:sys_enter_listen
+                 0      syscalls:sys_enter_accept4
+                 0      syscalls:sys_enter_connect
+                 0      syscalls:sys_enter_getsockname
+                 0      syscalls:sys_enter_getpeername
+                 0      syscalls:sys_enter_sendto
+                 0      syscalls:sys_enter_recvfrom
+                 0      syscalls:sys_enter_setsockopt
+                 0      syscalls:sys_enter_getsockopt
+                 0      syscalls:sys_enter_shutdown
+                 0      syscalls:sys_enter_sendmsg
+\stoptyping
+
+The count of calls for read/write are the same of course but the time
+of counting these events took for {\em perf} only 0.4 [s] compared to the
+33.5 [s] of strace.
+
+Now record the /trace/ events and examine them with /perf report/. The
+samples are saved in a file called /perf.data/, in the directory where
+the {\em perf} command was executed. There are events that generate a lot of
+data so beware to have enough memory in the case of /ramfs/ as decribed
+before or disk space.
+
+\starttyping
+# record trace
+# perf trace record -a dd if=/dev/zero of=/dev/null bs=512 count=1000k 2>&1
+1024000+0 records in
+1024000+0 records out
+524288000 bytes (524 MB, 500 MiB) copied, 0.963196 s, 544 MB/s
+[ perf record: Woken up 0 times to write data ]
+Warning:
+Processed 4911336 events and lost 5 chunks!
+
+Check IO/CPU overload!
+
+Warning:
+50 out of order events recorded.
+[ perf record: Captured and wrote 487.895 MB perf.data (4722121 samples) ]
+\stoptyping
+
+Let's have a look at the sample data with /perf report/. There are far
+more options to /perf report/ than shown in this document so it is
+advisable to look at the man pages for each {\em perf} command.
+
+
+\starttyping
+# perf report  --stdio
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2M of event 'raw_syscalls:sys_enter'
+# Event count (approx.): 2361063
+#
+# Overhead  Trace output
+# ........  .....................................................................................
+#
+    38.05%  NR 4 (1, 2aa2fd6f000, 200, 2aa2fd6f000, 0, 3ff82376690)
+     0.00%  NR 4 (3, 2aa26d5cbc8, 8, 0, 2aa26d5cbc8, 8)
+     0.00%  NR 4 (3, 3ff9baad9f0, 870, 1ac9f0, 3ff9baad9f0, 870)
+     0.00%  NR 4 (3, 3ff9b907f40, 5e8, 6f40, 3ff9b907f40, 5e8)
+     0.00%  NR 4 (3, 3ff9b918500, 5e8, 17500, 3ff9b918500, 5e8)
+     0.00%  NR 4 (3, 3ff9b91d348, 870, 1c348, 3ff9b91d348, 870)
+     0.00%  NR 4 (3, 3ff9b94abc8, 870, 49bc8, 3ff9b94abc8, 870)
+     0.00%  NR 4 (3, 3ff9b94e9e0, 870, 4d9e0, 3ff9b94e9e0, 870)
+     0.00%  NR 4 (3, 3ff9b95fdb8, 870, 5edb8, 3ff9b95fdb8, 870)
+
+                               ...
+
+\stoptyping
+
+Each syscall has a unique id (see syscall.h) and the coresponding
+syscall for NR 4 is /SYS_write/ with the arguments /(1, 2aa2fd6f000,
+200, 2aa2fd6f000, 0, 3ff82376690)/ supplied to the function call.
+If one would look at the complete trace, there would be other
+syscalls but the two most important in this trace are NR 3,4,
+respectively /SYS_read/, /SYS_write/.
