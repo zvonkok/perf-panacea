@@ -1,8 +1,8 @@
-\chapter{sampling events}
-\section{perf record}
+\chapter{Sampling Events}
+\section{Perf Record}
 The second modus operandi is recording (sampling) events. The default frequency of {\em perf}
-for sampling is 1000Hz. To sample at a lower frequency just append the flag /-F <freq>/ to
-/perf record/. So e.g. to sample the cpu-cycles at 49 Hz for a simple workload one can use
+for sampling is 1000Hz. To sample at a lower frequency just append the flag {\tt -F <freq>} to
+{\tt perf record}. So e.g. to sample the cpu-cycles at 49 Hz for a simple workload one can use
 it as follows.
 \starttyping
 # perf record -F 49  -e cpu-cycles -o ./perf.data -- md5sum /boot/vmlin* | cut -c 1-70
@@ -31,9 +31,9 @@ sampling in lockstep with other activities that can lead to misleading
 results.
 
 After sampling the workload there are several ways how to examine the
-gathered data.  The first command is /report/ that shows where the
+gathered data.  The first command is {\tt report} that shows where the
 events are spend in which function. Here as expected the cycles are
-spent in the function /md5sum/ from /libcryto.so/.
+spent in the function {\tt md5sum} from {\tt libcryto.so}.
 
 \starttyping[]
 # perf report --stdio --header
@@ -48,8 +48,22 @@ spent in the function /md5sum/ from /libcryto.so/.
 # cpudesc : IBM/S390
 # cpuid : IBM/S390
 # total memory : 264212152 kB
-# cmdline : /mnt/6ddc/kernel/latest/tools/perf record -F 49 -e cpu-cycles -- md5sum /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xdefault /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xperformance /boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xzfcpdump /boot/vmlinux-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm /boot/vmlinuz /boot/vmlinuz-4.11.0-00002-g6dc0234-dirty /boot/vmlinuz-4.11.0-00002-g6dc0234-dirty.old /boot/vmlinuz-4.11.0-03422-g028fd7c-dirty /boot/vmlinuz-4.11.0-03422-g028fd7c-dirty.old /boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty /boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty.old /boot/vmlinuz-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm /boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty /boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty.old /boot/vmlinuz-4.12.0-rc4-00524-g1b35c0a-dirty /boot/vmlinuz-4.12.0-rc7 /boot/vmlinuz-4.12.0-rc7perf /boot/vmlinuz-4.12.0-rc7perf.old
-# event : name = cpu-cycles, , size = 112, { sample_period, sample_freq } = 49, sample_type = IP|TID|TIME|PERIOD, disabled = 1, inherit = 1, mmap = 1, comm = 1, freq = 1, enable_on_exec = 1, task = 1, sample_id_all = 1, exclude_guest = 1, mmap2 = 1, comm_exec = 1
+# cmdline : /mnt/6ddc/kernel/latest/tools/perf record -F 49 -e cpu-cycles -- md5sum
+/boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xdefault
+/boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xperformance
+/boot/vmlinux-4.11.0-20170505.0.8571fc5.6b03710.fc25.s390xzfcpdump
+/boot/vmlinux-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm
+/boot/vmlinuz
+/boot/vmlinuz-4.11.0-00002-g6dc0234-dirty /boot/vmlinuz-4.11.0-00002-g6dc0234-dirty.old
+/boot/vmlinuz-4.11.0-03422-g028fd7c-dirty /boot/vmlinuz-4.11.0-03422-g028fd7c-dirty.old
+/boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty /boot/vmlinuz-4.11.0-03424-g99ce1a5-dirty.old
+/boot/vmlinuz-4.11.0-20170505.0.daa6a8b.6b03710.fc25.s390xkvm /boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty
+/boot/vmlinuz-4.11.0-rc6-00001-ged585a7-dirty.old /boot/vmlinuz-4.12.0-rc4-00524-g1b35c0a-dirty
+/boot/vmlinuz-4.12.0-rc7 /boot/vmlinuz-4.12.0-rc7perf /boot/vmlinuz-4.12.0-rc7perf.old
+# event : name = cpu-cycles, , size = 112, { sample_period, sample_freq } = 49,
+  sample_type = IP|TID|TIME|PERIOD, disabled = 1, inherit = 1, mmap = 1, comm = 1,
+  freq = 1, enable_on_exec = 1, task = 1, sample_id_all = 1, exclude_guest = 1, mmap2 = 1,
+  comm_exec = 1
 # HEADER_CPU_TOPOLOGY info available, use -I to display
 # HEADER_NUMA_TOPOLOGY info available, use -I to display
 # pmu mappings: cpum_sf = 4, cpum_cf = 4, software = 1, tracepoint = 2
@@ -74,10 +88,11 @@ spent in the function /md5sum/ from /libcryto.so/.
 #
 \stoptyping
 
-The second way is to use /perf script/ that shows a more detailed look of
+The second way is to use {\tt perf script} that shows a more detailed look of
 the samples. This mode is more of use when developing new functionality for
-perf and debugging perf itself. The section /Heatmap/ will show the use of
-/perf script/ to develop a visualization for latency examination.
+perf and debugging perf itself. The section \in[ssub:heatmap]
+\about[ssub:heatmap]
+will show the use of {\tt perf script} to develop a visualization for latency examination.
 
 \starttyping
 # perf script -D
@@ -103,10 +118,10 @@ perf and debugging perf itself. The section /Heatmap/ will show the use of
 .  0040:  34 2d 67 39 39 63 65 31 61 35 2d 64 69 72 74 79  4-g99ce1a5-dirty
 \stoptyping
 
-The last but not least examination method of /perf.data/ is to
+The last but not least examination method of {\tt perf.data} is to
 annotate code with the samples gathered. The source code is
 interweaved, line-wise with the samples recorded before, here
-/cpu-cycles/.
+{\tt cpu-cycles}.
 
 \starttyping
 # perf annotate --stdio

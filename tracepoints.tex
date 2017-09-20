@@ -5,17 +5,15 @@ tracepoint is encountered. This probes can be supplied by e.g.  {\em perf}
 counting or recording variables associated to a specific tracepoint or
 can be added programmatically at run time.
 
-/Tracepoints/ can be /on/ (probe attached) or /off/ (probe not
-attached).  When /on/ beware that probes are run everytime a
+{\tt Tracepoints} can be {\tt on} (probe attached) or {\tt off} (probe not
+attached).  When {\tt on} beware that probes are run everytime a
 tracepoint is encountered and executed in the context of the
 caller. If the probe contains heavy computation the execution of the
 traced binary will be slowed down.
 
-When /off/ there is a tiny time penalty (check a condition for a branch)
+When {\tt off} there is a tiny time penalty (check a condition for a branch)
 \starttyping
 if (tracepoint_on) { tracepoint_probe(); }
 \stoptyping
-and a minor space penalty for a auxiliary data structure.
-
-For /Tracepoints/ to work properly with {\em perf} one needs to install the
+and a minor space penalty for a auxiliary data structure. For {\tt Tracepoints} to work properly with {\em perf} one needs to install the
 debug symbols for the to examined binary.

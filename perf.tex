@@ -67,7 +67,7 @@ location=paragraph]
 
 % global layout
 \setuplayout[
-    grid=normal,
+    grid=yes,
     width=132mm,
     height=205mm, % + 7 chapter offset
     topspace=26mm, % - 7 chapter offset 7 == 2 * 10pt header + blank skip
@@ -192,7 +192,7 @@ location=paragraph]
 \define[2]\PlaceChapter
    {\hbox{\vtop{\setcharacterkerning[slightkerning]#2}  \rlap{\hskip\rightmargindistance#1}}}
 
-\definefont[ChapterNumber][Serif at 10pt]
+\definefont[ChapterNumber][Serif at 32pt]
 
 
 %\setuphead[chapter]   [color=darkred,alternative=margin, style=WORD, numberstyle=\tfd]
@@ -206,7 +206,8 @@ location=paragraph]
    header=empty,
    footer=empty,
    before={\blank[line]},
-   after={\blank[line]}
+%   after={\zeropoint}
+   after={\blank[back]\blank[back]}
 ]
 
 
@@ -262,6 +263,15 @@ interaction=text, % critical
 
 
 
+\setupcombinedlist[content][list={chapter,section,subsection,subsubsection}, alternative=a,]
+\setuplist[chapter][style=\om\word, color=darkred, width=10pt]
+\setuplist[section][          color=black, width=20pt, margin=10pt]
+\setuplist[subsection][       color=black, width=25pt, margin=30pt]
+\setuplist[subsubsection][    color=black, width=30pt, margin=55pt]
+
+
+
+
 %\setupcaption [figure][location={outermargin,high}]
 %-------------------------------------------------------------------------------
 \starttext
@@ -279,7 +289,7 @@ interaction=text, % critical
 
 \input introduction
 \input prerequisites
-%\input system-prerequisites
+\input system-prerequisites
 \input first-steps
 \input live-preview
 \input counting-events

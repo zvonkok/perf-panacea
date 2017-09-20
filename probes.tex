@@ -1,8 +1,8 @@
 \chapter{Probes}
-\section{Userspace probing}
+\section{Userspace Probing}
 
-As mentioned in the /Debug Symbols/ section, {\em perf} can create
-/Tracepoints/ at functions and source code lines. So as a first
+As mentioned in the \in[ssec:dsymbol] \about[ssec:dsymbol] section, {\em perf} can create
+{\tt Tracepoints} at functions and source code lines. So as a first
 step lets have a look which functions reside in the used binary.
 
 \margintext{Show all functions in {\tt lat_mem_rd} for probing, debug symbols needed.}
@@ -30,10 +30,10 @@ bytes
 close@plt
 \stoptyping
 
-From earlier examinations one knows that the /benchmark_loads/ has the most
+From earlier examinations one knows that the {\tt benchmark_loads} has the most
 samples. Now show or list the source code of the specified function.
 
-\margintext{List source code of {\ss benchmark_loads} function, debug symbols needed.}
+\margintext{List source code of {\tt benchmark_loads} function, debug symbols needed.}
 \starttyping
 # perf probe -x lat_mem_rd -L benchmark_loads | head -n 20
 <benchmark_loads@/mnt/6ddc/benchmarks/lmbench-3.0-a9/src/lat_mem_rd.c:0>
@@ -62,7 +62,7 @@ That's really nice, we see the source code with associated line
 numbers and can have a glimpse on the function and its intent. One can
 further dissect the overview with another feature, namely inspecting
 the variables available at a specific source code line. Lets have a
-look at line 9, where the macro /HUNDRED/ is located.
+look at line 9, where the macro {\tt HUNDRED} is located.
 
 \starttyping
 # list all variables at line=9 in benchmark_loads function
@@ -77,11 +77,11 @@ Available variables at benchmark_loads:9
 		struct mem_state*	state
 \stoptyping
 
-There are some control variables /i/,/count/,/iterations/ but the interesting
-variable here is /p/. The /lat_mem_rd/ benchmarks uses pointer-chasing to step
-with a specific stride through the caches and memory and /p/ is the beginning
-of a circular linked list. Lets create a /Tracepoint/ and gather the
-address of /p/.
+There are some control variables {\tt i, count, iterations} but the interesting
+variable here is {\tt p} . The {\tt lat_mem_rd} benchmarks uses pointer-chasing to step
+with a specific stride through the caches and memory and {\tt p} is the beginning
+of a circular linked list. Lets create a {\em Tracepoint} and gather the
+address of {\tt p}.
 
 \starttyping
 # create probe for variable p
@@ -105,7 +105,7 @@ checking list the new event.
 probe_lat:bl9                                      [Tracepoint event]
 \stoptyping
 
-Lets try to count how many times we reach this /Tracepoint/.
+Lets try to count how many times we reach this {\em Tracepoint}.
 
 \starttyping
 # use the event either in stat or record
@@ -125,7 +125,7 @@ Lets try to count how many times we reach this /Tracepoint/.
 
 \stoptyping
 
-To display the value of /p/, which was gathered in the /Tracepoint/,
+To display the value of {\tt p}, which was gathered in the {\em Tracepoint},
 the samples have to be recorded.
 
 \starttyping
@@ -147,13 +147,13 @@ Check IO/CPU overload!
 [ perf record: Captured and wrote 1912.943 MB perf.data (23951777 samples) ]
 \stoptyping
 
-Now just call /perf script/ to have an console output of the gathered
-samples. What is evident here is that /lat_mem_rd/ starts always from
+Now just call {\tt perf script} to have an console output of the gathered
+samples. What is evident here is that {\tt lat_mem_rd} starts always from
 the same address the pointer-chasing, the variability lies in the
 iteration count and stride and buffer size.
 
 
-\starttyping[oddmaring=-1.5cm, evenmargin=-1.5cm]
+\starttyping
 # show the value of p
 # perf script
       lat_mem_rd  5846 [000]  5210.256441: probe_lat:bl9: (2aa01f81d7e) addr=0x3ff9affe000
@@ -179,7 +179,7 @@ iteration count and stride and buffer size.
 \stoptyping
 
 
-** Backlog
+\subsection{Backlog}
 \starttyping
  perf probe -x ./lat_mem_rd -L benchmark_loads
  perf probe -x ./lat_mem_rd 'bm_load=benchmark_loads'
@@ -194,7 +194,7 @@ iteration count and stride and buffer size.
 \stoptyping
 
 
-\subsection{Heatmap}
+\subsection[ssub:heatmap]{Heatmap}
 
 In this section {\em probes}\sidenote{The probes used here are static
   tracepoints that are already available no need to create new one}
@@ -252,6 +252,7 @@ perf script --ns | awk '{ gsub(/:/, "") } $5 ~ /issue/ { ts[$6, $10] = $4 }
     ($4 - l) * 1000000; ts[$6, $10] = 0 } }' > out.lat_us
 \stoptyping
 
+
 Now to visualize the latencies one needs additional software that is
 available on {\em github}.
 
@@ -279,15 +280,16 @@ went to disk.
 \stopplacefigure
 
 
-\section{Kernel probing}
+\section{Kernel Probing}
 
 The nice thing about perf is that it makes no differentiation between
 userspace or kernelspace. What one was doing in the section before in
-userspace can be done similarly for the /Kernel/. The focus in this
-section will be on the /ping/ command. Thats why the examination will
-be filtered from beginning on /icmp_rcv/.
+userspace can be done similarly for the {\em Kernel}. The focus in this
+section will be on the {\tt ping} command. Thats why the examination will
+be filtered from beginning on {\tt icmp_rcv}.
 
-List the functions of the current /Kernel/ and grep for /icmp_rcv/.
+
+List the functions of the current {\em Kernel} and grep for {\tt icmp_rcv}.
 
 \starttyping
 #+BEGIN_SRC bash  :dir /sshx:root@s311lp09:/ :results value code :exports both :cache yes
@@ -296,8 +298,8 @@ perf probe -k /usr/lib/debug/boot/vmlinux-4.8.0-34-generic  -F  | grep icmp_rcv 
 icmp_rcv
 \stoptyping
 
-Create a probe on /icmp_rcv/, this time the purpose of the probe is to count
-how many times /icmp_rcv/ was called.
+Create a probe on {\tt icmp_rcv}, this time the purpose of the probe is to count
+how many times {\tt icmp_rcv} was called.
 
 \starttyping
 # create a probe on icmp_rcv
@@ -308,9 +310,7 @@ perf probe -k /usr/lib/debug/boot/vmlinux-4.8.0-34-generic   icmp_rcv 2>&1
 TODO: perf stat ping
 \stoptyping
 
-
-
-Record the samples and ping /pserver1/ six times.
+Record the samples and ping {\tt pserver1} six times.
 
 \starttyping
 # recored new event probe:icmp_rcv
@@ -329,8 +329,8 @@ rtt min/avg/max/mdev = 0.140/0.210/0.547/0.150 ms
 \stoptyping
 
 
-With the present /perf.data/ and the /report/ tool one can easily e.g.
-find out in which source file the function /icmp_rcv/ is implemented.
+With the present {\tt perf.data} and the {\tt report} tool one can easily e.g.
+find out in which source file the function {\tt icmp_rcv} is implemented.
 
 \starttyping
 # show the source file
@@ -352,7 +352,7 @@ find out in which source file the function /icmp_rcv/ is implemented.
 \stoptyping
 
 Additionally one can gather the source line of the file reported above
-where the /Tracepoint/ is located.
+where the {\em Tracepoint} is located.
 
 \starttyping
 # show the source line
@@ -375,17 +375,4 @@ where the /Tracepoint/ is located.
 
 \starttyping
 # vi ../6ddc/kernel/linux/net/ipv4/icmp.c 973
-\stoptyping
-
-
-** Backlog
-
-\starttyping
-# perf report --stdio 2>&1
-
-# Overhead  Trace output
-# ........  ............
-#
-  100.00% (6eb468)
-
 \stoptyping

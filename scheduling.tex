@@ -1,8 +1,8 @@
 \chapter{Scheduling}
-\section{perf sched}
+\section{Perf Sched}
 
-Another very interesting {\em perf} command is {\em sched}. These are predefined events
-that are associated with scheduling. With /sched/ one can see how and when the
+Another very interesting {\em perf} command is {\tt sched}. These are predefined events
+that are associated with scheduling. With {\tt sched} one can see how and when the
 workload is scheduled across the CPU's, when it is woken up and led to sleep.
 
 So e.g. to know if such a simple workload like {\tt lat_mem_rd} is CPU affine or it is
@@ -61,9 +61,9 @@ Examining the complete trace shows that the workload is scheduled
 across all CPUs and not running exclusively on one or affine to one
 CPU.
 
-Another nice features of /perf sched/ is to report the latencies of
+Another nice features of {\tt perf sched} is to report the latencies of
 the scheduling events per task. These latency can be correlated with
-the timestamp from the table below with the /perf sched map/ output
+the timestamp from the table below with the {\tt perf sched map} output
 above.
 
 \starttyping
@@ -99,7 +99,8 @@ above.
 Additionally the number of context switches is reported for all task
 running at the time of {\tt lat_mem_rd}.
 
-To have even more info about the separate events call /perf sched/ with the /script/ argument.
+To have even more info about the separate events call {\tt perf sched}
+with the {\tt script} argument.
 
 \starttyping
 # show detailed info about scheduling
@@ -137,8 +138,8 @@ To have even more info about the separate events call /perf sched/ with the /scr
       multipathd   417 [002] 12209.580451:  sched:sched_switch: multip
 \stoptyping
 
-In Linux 4.10 an additional command to /perf sched/ was added, namely
-/timehist/. It shows the scheduler latency by event. It includes the
+In Linux 4.10 an additional command to {\tt perf sched} was added, namely
+{\tt timehist}. It shows the scheduler latency by event. It includes the
 time the task was waiting to be woken up and the scheduler latency
 after wakeup to running.
 
@@ -147,26 +148,26 @@ after wakeup to running.
 # -V CPU
 # -w wakup events
 # perf sched timehist -MVw | head -n 20
-           time    cpu  012345678  task name                       wait time  sch delay   run time
-                                   [tid/pid]                          (msec)     (msec)     (msec)
---------------- ------  ---------  ------------------------------  ---------  ---------  ---------
-     291.481867 [0001]   i         <idle>                              0.000      0.000      0.000
-     291.481925 [0005]       i     <idle>                              0.000      0.000      0.000
-     291.481963 [0005]       s     Xorg[1884]                          0.000      0.000      0.037                                    schedule_hrtimeout_range_clock <- schedu
-     291.482019 [0001]   s         irq/31-nvidia[1980]                 0.000      0.000      0.152                                    irq_thread <- kthread <- ret_from_fork
-     291.482136 [0006]             perf[6319]                                                       awakened: perf[6320]
-     291.482140 [0001]   i         <idle>                              0.152      0.000      0.121
-     291.482175 [0006]        s    perf[6319]                          0.000      0.000      0.000                                    schedule_hrtimeout_range_clock <- schedu
-     291.482562 [0001]             lat_mem_rd[6320]                                                 awakened: kworker/u16:3[227]
-     291.482564 [0006]        i    <idle>                              0.000      0.000      0.389
-     291.482569 [0006]         m     kworker/u16:3[227]                                               migrated: terminator[6030] cpu 1 => 2
-     291.482572 [0006]             kworker/u16:3[227]                                               awakened: terminator[6030]
-     291.482574 [0006]        s    kworker/u16:3[227]                  0.000      0.002      0.010                                    worker_thread <- kthread <- ret_from_for
-     291.482576 [0002]    i        <idle>                              0.000      0.000      0.000
-     291.482614 [0002]    s        terminator[6030]                    0.000      0.004      0.037                                    schedule_hrtimeout_range_clock <- schedu
+           time    cpu  012345678  task name            wait time  sch delay   run time
+                                   [tid/pid]               (msec)     (msec)     (msec)
+--------------- ------  ---------  -------------------- ---------  ---------  ---------
+     291.481867 [0001]   i         <idle>                   0.000      0.000      0.000
+     291.481925 [0005]       i     <idle>                   0.000      0.000      0.000
+     291.481963 [0005]       s     Xorg[1884]               0.000      0.000      0.037 schedule_hrtimeout_range_clock <- schedu
+     291.482019 [0001]   s         irq/31-nvidia[1980]      0.000      0.000      0.152 irq_thread <- kthread <- ret_from_fork
+     291.482136 [0006]             perf[6319]                                           awakened: perf[6320]
+     291.482140 [0001]   i         <idle>                   0.152      0.000      0.121
+     291.482175 [0006]        s    perf[6319]               0.000      0.000      0.000 schedule_hrtimeout_range_clock <- schedu
+     291.482562 [0001]             lat_mem_rd[6320]                                     awakened: kworker/u16:3[227]
+     291.482564 [0006]        i    <idle>                   0.000      0.000      0.389
+     291.482569 [0006]         m     kworker/u16:3[227]                                 migrated: terminator[6030] cpu 1 => 2
+     291.482572 [0006]             kworker/u16:3[227]                                   awakened: terminator[6030]
+     291.482574 [0006]        s    kworker/u16:3[227]       0.000      0.002      0.010 worker_thread <- kthread <- ret_from_for
+     291.482576 [0002]    i        <idle>                   0.000      0.000      0.000
+     291.482614 [0002]    s        terminator[6030]         0.000      0.004      0.037 schedule_hrtimeout_range_clock <- schedu
 \stoptyping
 
-For a graphical overview of scheduling events of a workload /perf timechart/ can
+For a graphical overview of scheduling events of a workload {\tt perf timechart} can
 be used. First record the needed samples.
 
 \starttyping
@@ -186,8 +187,8 @@ A very fast SVG viewer on a Linux system is /rsvg-view-3/.
 # rsvg-view-3 output.svg
 \stoptyping
 
-
-\startplacefigure[title={Sched}]
+\setupcaption [figure][location={bottom}]
+\startplacefigure[title={Timechart of {\tt lat_mem_rd}, which is scheduled on all available {\sc cpus}}]
 \externalfigure[sched][fullwidth]
 \stopplacefigure
 

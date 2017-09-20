@@ -1,4 +1,4 @@
-\section{prerequisites}
+\section{Prerequisites}
 Before deep diving into performance analysis with {\em perf} two important
 questions have to be answered before proceeding. The are two compiler
 flags that make the life of a performance analyst difficult. Missing
@@ -7,7 +7,7 @@ debug information and the omitted frame pointer.
 Why these two options are critical in the performance analyst point of
 view is shown in the next two sections.
 
-\subsection{Debug Symbols}
+\subsection[ssec:dsymbol]{Debug Symbols}
 
 A debug symbols is additional information stored in the binary or in
 another file that expresses information about a programming language
@@ -22,7 +22,7 @@ information.
 \subsubsection{Where are debug symbols saved?}
 
 For the sake of simplicity the focus will be on \infull{ELF} (\ELF\)
-binaries. Every binary has several sections e.g. the /.text/ section
+binaries. Every binary has several sections e.g. the {\tt .text} section
 holds the executable code, {\tt .bss} section holds statically
 allocated variables. Another interesting section is {\tt .eh_frame}
 that in the first place held information about exception handling in
@@ -36,7 +36,8 @@ Beware that even if C-code is compiled without exceptions the
 To have a look at the {\tt .eh_frame} section one can use the {\em readelf}
 program.
 
-\margintext{DWARF-2 Call Frame Information}
+\margintext{DWARF-2 Call Frame Information, additionally one can use
+{\tt dwarfdump} or {\tt objdump}}
 \starttyping
 # readelf --debug-dump=frames /bin/ls
 Contents of the .eh_frame section:
@@ -82,15 +83,21 @@ the binary with debug symbols one can see different \DWARF\ sections
 that make up the \DWARF\ data. The next table shows five exemplary
 \DWARF\ sections of the new binary.
 
-\starttyping
-| Section        | Description                                             |
-|----------------+---------------------------------------------------------|
-| .debug_abbrev  | Abbreviations used in the .debug_info section           |
-| .debug_aranges | Lookup table for mapping addresses to compilation units |
-| .debug_frame   | Call frame information                                  |
-| .debug_info    | Core DWARF information section                          |
-| .debug_line    | Line number information                                 |
-\stoptyping
+
+\placetable[here][tab:dwarf]{Extract of some \DWARF\ sections of a binary}{
+\starttabulate[|l|l|]
+\HL
+\NC {\sc Section} \NC {\sc Description} \NC\NR
+\HL
+\NC .debug_abbrev  \NC Abbreviations used in the .debug_info section           \NC\NR
+\NC .debug_aranges \NC Lookup table for mapping addresses to compilation units \NC\NR
+\NC .debug_frame   \NC Call frame information                                  \NC\NR
+\NC .debug_info    \NC Core DWARF information section                          \NC\NR
+\NC .debug_line    \NC Line number information                                 \NC\NR
+\HL
+\stoptabulate
+}
+
 
 Examining the flags of these section one can notice that they are {\tt
   READONLY} without the {\tt ALLOC} or {\tt LOAD} flag.
@@ -114,7 +121,10 @@ down. One can extract the {\tt .text} section and compare them to
 see that they are the same independently if the source code
 was compiled with or without the {\tt -g} flag.
 
-\margintext{gcc-a-b}
+\margintext{First compile a source file with debug and without debug symbols.
+  Next step is to extract the {\tt .text} section which holds the actual code
+  and build a hash sum.
+}
 \starttyping
 # A is equal to B
 # gcc -g -O2 A.c -o A && strip A
@@ -127,41 +137,42 @@ f53e82c6da4f3c601fbf5c22e74e5729  -
 
 Just for educational purpose the size of the sections between {\tt A} and
 {\tt B}, where evidently no important sections are altered through
-debugging symbols and stripping of the binary is shown in Table
-TODOREF.
+debugging symbols and stripping of the binary is shown in Table \in{Table}[tab:elf].
 
-\margintext{Size of sections in an ELF binary}
-\placetable[here][tab:elf]{Size of sections in an ELF binary}{\start
-\HL
-\NC Section            \NC size -A -d ./A \NC size -A -d ./B \NC\NR
-\HL
-| .interp            |             15 |             15 |
-| .note.ABI-tag      |             32 |             32 |
-| .note.gnu.build-id |             36 |             36 |
-| .gnu.hash          |             52 |             52 |
-| .dynsym            |            288 |            288 |
-| .dynstr            |            167 |            167 |
-| .gnu.version       |             24 |             24 |
-| .gnu.version_r     |             32 |             32 |
-| .rela.dyn          |            216 |            216 |
-| .rela.plt          |             48 |             48 |
-| .init              |             64 |             64 |
-| .plt               |             96 |             96 |
-| .text              |            464 |            464 |
-| .fini              |             44 |             44 |
-| .rodata            |              4 |              4 |
-| .eh_frame_hdr      |             36 |             36 |
-| .eh_frame          |            132 |            132 |
-| .init_array        |              8 |              8 |
-| .fini_array        |              8 |              8 |
-| .jcr               |              8 |              8 |
-| .dynamic           |            496 |            496 |
-| .got               |             88 |             88 |
-| .data              |             16 |             16 |
-| .bss               |              8 |              8 |
-| .comment           |             52 |             52 |
 
-\stop}
+\placetable[here][tab:elf]{Size of sections in an ELF binary}{
+\starttabulate[|l|r|r|]
+\HL
+\NC {\sc Section} \NC {\tt size -A -d ./A} \NC {\tt size -A -d ./B} \NC\NR
+\HL
+\NC .interp            \NC    15 \NC    15 \NC\NR
+\NC .note.ABI-tag      \NC    32 \NC    32 \NC\NR
+\NC .note.gnu.build-id \NC    36 \NC    36 \NC\NR
+\NC .gnu.hash          \NC    52 \NC    52 \NC\NR
+\NC .dynsym            \NC   288 \NC   288 \NC\NR
+\NC .dynstr            \NC   167 \NC   167 \NC\NR
+\NC .gnu.version       \NC    24 \NC    24 \NC\NR
+\NC .gnu.version_r     \NC    32 \NC    32 \NC\NR
+\NC .rela.dyn          \NC   216 \NC   216 \NC\NR
+\NC .rela.plt          \NC    48 \NC    48 \NC\NR
+\NC .init              \NC    64 \NC    64 \NC\NR
+\NC .plt               \NC    96 \NC    96 \NC\NR
+\NC .text              \NC   464 \NC   464 \NC\NR
+\NC .fini              \NC    44 \NC    44 \NC\NR
+\NC .rodata            \NC     4 \NC     4 \NC\NR
+\NC .eh_frame_hdr      \NC    36 \NC    36 \NC\NR
+\NC .eh_frame          \NC   132 \NC   132 \NC\NR
+\NC .init_array        \NC     8 \NC     8 \NC\NR
+\NC .fini_array        \NC     8 \NC     8 \NC\NR
+\NC .jcr               \NC     8 \NC     8 \NC\NR
+\NC .dynamic           \NC   496 \NC   496 \NC\NR
+\NC .got               \NC    88 \NC    88 \NC\NR
+\NC .data              \NC    16 \NC    16 \NC\NR
+\NC .bss               \NC     8 \NC     8 \NC\NR
+\NC .comment           \NC    52 \NC    52 \NC\NR
+\HL
+\stoptabulate
+}
 
 \subsection[framep]{Frame Pointer}
 
@@ -183,10 +194,6 @@ off the stack. This stack of frames is called the {\em call-stack}.
 The {\em call-stacks} are later used in \in[fgraph] \about[fgraph] to
 visualize them.
 
-\startplacemarginfigure[ title={A small rectangle
-put in the margin.}, reference=fig1]
-\externalfigure[stack][marginwidth]
-\stopplacemarginfigure
 
 The stack pointer always points the top of the stack and is used for
 pushing and popping of elements to the stack. So depending on what is
@@ -196,6 +203,11 @@ pointer is used. The frame pointer points to the beginning of the
 stack, the return address where to jump back after completing the
 current function and is not manipulated during the execution of a
 function.
+
+\startplacemarginfigure[ title={A sample stack that is compatible
+with most architectures.}, reference=fig1]
+\externalfigure[stack][marginwidth]
+\stopplacemarginfigure
 
 To address a variable on the stack an offset is added to the frame
 pointer and the variable can be accessed through this pointer. It's an

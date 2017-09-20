@@ -63,6 +63,9 @@ TID 18770:                               TID 18770:                             
 #4  0x000000000042ce6e __libc_start_main  #4  0x000000000042ce6e __libc_start_main  #4  0x000000000042ce6e __libc_start_main
 #5  0x0000000000400dea _start             #5  0x0000000000400dea _start             #5  0x0000000000400dea _start
 
+# Use addr2line to find out at which source code line the instruction pointer pointed
+# to during execution when pi was sampled
+
 addr2line -a 0x0000000000403bcc -e ./pi   addr2line -a 0x0000000000403bc3 -e ./pi   addr2line  -a 0x0000000000403bff -e ./pi
 0x0000000000403bcc                        0x0000000000403bc3                        0x0000000000403bff
 gmpbench-0.2/pi.c:485                     gmpbench-0.2/pi.c:484                     gmpbench-0.2/pi.c:488
@@ -276,16 +279,34 @@ Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)
 
 
 \starttyping
-# perf script -i /tmp/perf-10313.data | stackcollapse-perf.pl | flamegraph.pl --color=java --hash > jbb.jsvg
+# perf script -i /tmp/perf-10313.data | stackcollapse-perf.pl --all | flamegraph.pl --color=java --hash > jbb.jsvg
 \stoptyping
+
+
+
+\definefloat[bleedfigure][figure]
+\setupfloat
+[bleedfigure]
+[
+  leftmargindistance=0mm,
+  rightmargindistance=0mm,
+default={backspace}]
+
+
+
+%\setupcaption [figure][location={bottom}]
+%\placebleedfigure{Flamegraph of {\em Java}, {\em JDK} and Kernel}{\externalfigure[jbb.svg][paperwidth]}
 
 \setupcaption [figure][location={bottom}]
 \startplacefigure[title={Flamegraph of {\em Java}, {\em JDK} and Kernel}]
-\externalfigure[jbb.svg][paperwidth]
+\externalfigure[jbb.svg][fullwidth]
 \stopplacefigure
 
 
-
+The {\em green} colour represents {\em Java} functions the {\em yellowish} are functions
+from the {\em JDK} and last but not least the {\em red} ones are from the {\em Kernel}. {\em}
+Java code is inlined at a high degree and for that purpose one can supply {\tt unfoldall} as an
+option to see even the inlined functions.
 
 \starttyping
 # export PERF_MAP_OPTIONS=unfoldall
@@ -311,7 +332,11 @@ Recording events for 15 seconds (adapt by setting PERF_RECORD_SECONDS)
 \stoptyping
 
 
+The result is stunning, additional to the visualization of the  complete  execution
+stack one has the inlined {\em Java} functions. Newer {\em Perf} version can handle
+even inlined {\sc c/c++} code.
+
 \setupcaption [figure][location={bottom}]
-\startplacefigure[title={Flamegraph of {\em Java}, {\em JDK} and Kernel}]
+\startplacefigure[title={Flamegraph of {\em Java} (with inlined functions), {\em JDK} and Kernel }]
 \externalfigure[jbb.unfold.svg][fullwidth]
 \stopplacefigure

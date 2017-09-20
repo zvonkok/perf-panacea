@@ -10,7 +10,7 @@ close source    > level 2, order 2, name '/home/zkosic/git/context/tex/texmf-con
 system          > files > jobname 'titlepage', input './titlepage', result 'titlepage'
 fonts           > latin modern fonts are not preloaded
 languages       > language 'en' is active
-open source     > level 2, order 3, name '/home/zkosic/git/perf/titlepage.tex'
+open source     > level 2, order 3, name '/home/zkosic/perf-panacea/titlepage.tex'
 fonts           > preloading modern-designsize (math)
 fonts           > typescripts > unknown library 'modern-designsize'
 fonts           > 'fallback modern-designsize mm 10pt' is loaded
@@ -24,7 +24,7 @@ math            > fallbacks > missing U+02057 prime in font 'Linux Libertine O'
 math            > fallbacks > missing U+02057 prime in font 'Linux Libertine O'
 backend         > xmp > using file '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/lpdf-pdx.xml'
 pages           > flushing realpage 1, userpage 1, subpage 1
-close source    > level 2, order 3, name '/home/zkosic/git/perf/titlepage.tex'
+close source    > level 2, order 3, name '/home/zkosic/perf-panacea/titlepage.tex'
 close source    > level 1, order 3, name '/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-yes.mkiv'
 
 system          > structure > start used structure
@@ -40,7 +40,7 @@ used file       >    1: filename=cont-yes.mkiv filetype=tex foundname=/home/zkos
 used file       >    2: filename=publ-imp-default.lua filetype=lua foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/publ-imp-default.lua usedmethod=database
 used file       >    3: filename=cont-new.mkiv filetype=tex foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/base/mkiv/cont-new.mkiv usedmethod=database
 used file       >    4: filename=lang-us.lua filetype=lua foundname=/home/zkosic/git/context/tex/texmf-context/tex/context/patterns/mkiv/lang-us.lua usedmethod=database
-used file       >    5: filename=/home/zkosic/git/perf/titlepage foundname=/home/zkosic/git/perf/titlepage.tex usedmethod=qualified
+used file       >    5: filename=/home/zkosic/perf-panacea/titlepage foundname=/home/zkosic/perf-panacea/titlepage.tex usedmethod=qualified
 used file       >    6: filename=/home/zkosic/.fonts/LinLibertine_R.otf format=otf foundname=/home/zkosic/.fonts/LinLibertine_R.otf usedmethod=direct
 used file       >    7: filename=/home/zkosic/.fonts/LinLibertine_RI.otf format=otf foundname=/home/zkosic/.fonts/LinLibertine_RI.otf usedmethod=direct
 used file       >    8: filename=/home/zkosic/.fonts/SCRIPTIN.ttf format=ttf foundname=/home/zkosic/.fonts/SCRIPTIN.ttf usedmethod=direct
@@ -69,8 +69,8 @@ system          > options > stop commandline files
 
 mkiv lua stats  > used config file: selfautoparent:/texmf/web2c/texmfcnf.lua
 mkiv lua stats  > used cache path: /home/zkosic/git/context/tex/texmf-cache/luatex-cache/context/5fe67e0bfe781ce0dde776fb1556f32e
-mkiv lua stats  > resource resolver: loadtime 0.006 seconds, 1 scans with scantime 0.000 seconds, 0 shared scans, 9 found files, scanned paths: /home/zkosic/texmf
-mkiv lua stats  > stored bytecode data: 404 modules (0.208 sec), 91 tables (0.012 sec), 495 chunks (0.220 sec)
+mkiv lua stats  > resource resolver: loadtime 0.005 seconds, 1 scans with scantime 0.000 seconds, 0 shared scans, 9 found files, scanned paths: /home/zkosic/texmf
+mkiv lua stats  > stored bytecode data: 404 modules (0.220 sec), 91 tables (0.012 sec), 495 chunks (0.232 sec)
 mkiv lua stats  > traced context: maxstack: 1231, freed: 0, unreachable: 1231
 mkiv lua stats  > cleaned up reserved nodes: 52 nodes, 9 lists of 447
 mkiv lua stats  > node memory usage: 2 glue, 2 penalty, 9 attribute, 49 glue_spec, 3 attribute_list, 2 temp, 2 user_defined
@@ -82,10 +82,10 @@ mkiv lua stats  > randomizer: resumed with value 0.23894355131264
 mkiv lua stats  > loaded patterns: en::2, load time: 0.000
 mkiv lua stats  > result saved in file: titlepage.pdf, compresslevel 3, objectcompresslevel 3
 mkiv lua stats  > loaded fonts: 3 files: linlibertine_r.otf, linlibertine_ri.otf, scriptin.ttf
-mkiv lua stats  > font engine: otf 3.029, afm 1.512, tfm 1.000, 11 instances, 8 shared in backend, 2 common vectors, 6 common hashes, load time 0.104 seconds 
+mkiv lua stats  > font engine: otf 3.029, afm 1.512, tfm 1.000, 11 instances, 8 shared in backend, 2 common vectors, 6 common hashes, load time 0.113 seconds 
 mkiv lua stats  > used platform: linux-64, type: unix, binary subtree: texmf-linux-64
 mkiv lua stats  > luatex banner: this is luatex, version 1.05.0 (tex live 2017)
 mkiv lua stats  > control sequences: 45635 of 65536 + 100000
-mkiv lua stats  > lua properties: engine: lua, used memory: 64 MB (ctx: 64 MB), hash type: lua, hash chars: min(64,40), symbol mask: utf (τεχ)
-mkiv lua stats  > runtime: 0.402 seconds, 1 processed pages, 1 shipped pages, 2.488 pages/second
+mkiv lua stats  > lua properties: engine: lua, used memory: 65 MB (ctx: 65 MB), hash type: lua, hash chars: min(64,40), symbol mask: utf (τεχ)
+mkiv lua stats  > runtime: 0.425 seconds, 1 processed pages, 1 shipped pages, 2.353 pages/second
 
